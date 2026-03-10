@@ -231,6 +231,43 @@ http://localhost:8000/login.html
 
 ---
 
+## 📊 Application Screenshots
+
+### Dashboard
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+### AI Expense Classifier
+
+![Classifier](docs/screenshots/classifier.png)
+
+### Budget Management
+
+![Budgets](docs/screenshots/budgets.png)
+
+### Spending Analytics
+
+![Analytics](docs/screenshots/analytics.png)
+
+---
+
+## 🏗 Architecture
+
+User Browser
+│
+▼
+Frontend (HTML, CSS, JavaScript)
+│
+▼
+Flask Backend API
+│
+├── ML Model (TF-IDF + Logistic Regression)
+│
+▼
+SQLite Database
+
+---
+
 ## 🧠 ML Model Details
 
 ### Training Dataset
@@ -330,7 +367,7 @@ GET    /api/model-info  - ML model information
 
 ---
 
-##  Contributing
+## Contributing
 
 Contributions are welcome! Please follow these steps:
 
