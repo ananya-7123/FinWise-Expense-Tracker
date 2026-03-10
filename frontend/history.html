@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Transaction History — FinWise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Additional styles for history page */
+    .history-filters {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-input {
+      flex: 1;
+      min-width: 200px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    
+    .filter-input:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px var(--teal-dim);
+    }
+    
+    .filter-select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 10px 14px;
+      cursor: pointer;
+      outline: none;
+      min-width: 150px;
+    }
+    
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .history-table thead {
+      background: rgba(255,255,255,0.02);
+    }
+    
+    .history-table th {
+      padding: 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .history-table td {
+      padding: 16px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .history-table tbody tr {
+      transition: background 0.2s;
+    }
+    
+    .history-table tbody tr:hover {
+      background: var(--surface-hover);
+    }
+    
+    .table-icon {
+      font-size: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .table-category {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .table-amount {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    
+    .table-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .action-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-dim);
+    }
+    
+    .action-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+    }
+    
+    .action-btn.delete {
+      color: var(--red);
+      border-color: rgba(255,92,92,0.3);
+    }
+    
+    .action-btn.delete:hover {
+      background: rgba(255,92,92,0.15);
+    }
+    
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    
+    .stat-box-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    
+    .stat-box-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--teal);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">💹</div>
+      <div class="logo-text">Fin<span>Wise</span></div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <a class="nav-item" href="index.html">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a class="nav-item" href="index.html#classifySection">
+        <span class="nav-icon">⚡</span> Classifier
+      </a>
+      <a class="nav-item active" href="history.html">
+        <span class="nav-icon">🧾</span> Transactions
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Finance</div>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">🎯</span> Budgets
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">💰</span> Accounts
+      </a>
+      <a class="nav-item" href="history.html">
+        <span class="nav-icon">📁</span> History
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Settings</div>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">⚙️</span> Preferences
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="ai-badge">AI Engine Active</div>
+      <div class="ai-text">NLP Classifier — Logistic Regression · 93.4% Accuracy</div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="page-title">Transaction History</div>
+        <div class="page-sub">View and manage all your expenses</div>
+      </div>
+      <div class="topbar-right">
+        <button class="add-btn" onclick="window.location.href='index.html#classifySection'">+ Add Expense</button>
+        <div class="avatar" onclick="showLogoutMenu()" style="cursor: pointer;" id="userAvatar">AJ</div>
+<div class="logout-menu" id="logoutMenu" style="display: none;">
+  <div class="logout-user" id="logoutUsername">User</div>
+  <button class="logout-btn" onclick="handleLogout()">🚪 Logout</button>
+</div>
+      </div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-box-label">Total Transactions</div>
+        <div class="stat-box-value" id="totalCount">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">Total Spending</div>
+        <div class="stat-box-value" id="totalSpending">₹0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">This Month</div>
+        <div class="stat-box-value" id="monthSpending">₹0</div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="card">
+      <div class="history-filters">
+        <input 
+          type="text" 
+          class="filter-input" 
+          id="searchInput" 
+          placeholder="🔍 Search transactions..."
+          oninput="filterTransactions()"
+        />
+        <select class="filter-select" id="categoryFilter" onchange="filterTransactions()">
+          <option value="">All Categories</option>
+          <option value="Food">Food</option>
+          <option value="Transport">Transport</option>
+          <option value="Healthcare">Healthcare</option>
+          <option value="Bills">Bills</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Income">Income</option>
+          <option value="Others">Others</option>
+        </select>
+        <input 
+          type="month" 
+          class="filter-select" 
+          id="monthFilter"
+          onchange="filterTransactions()"
+        />
+        <button class="add-btn" onclick="clearFilters()">Clear Filters</button>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS TABLE -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📊 All Transactions</div>
+        <button class="add-btn" onclick="exportToCSV()">📥 Export CSV</button>
+      </div>
+      
+      <div id="tableContainer">
+        <table class="history-table" id="transactionsTable">
+          <thead>
+            <tr>
+              <th>Icon</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Confidence</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="transactionsBody">
+            <!-- Populated by JavaScript -->
+          </tbody>
+        </table>
+        
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <div class="empty-state-icon">📭</div>
+          <h3>No transactions found</h3>
+          <p>Start by adding your first expense!</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="history.js"></script>
+</body>
+</html>

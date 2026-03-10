@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up — FinWise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #080d1a;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --teal: #00e5c3;
+      --teal-dim: rgba(0,229,195,0.15);
+      --teal-glow: rgba(0,229,195,0.35);
+      --text: #e8edf5;
+      --text-muted: rgba(232,237,245,0.45);
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px; left: -100px;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(0,229,195,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px; right: -200px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,229,195,0.08), transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .auth-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px;
+      max-width: 420px;
+      width: 90%;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: fadeUp 0.5s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+
+    .logo-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--teal), #00c896);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 0 30px var(--teal-glow);
+    }
+
+    .logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; }
+    .logo-text span { color: var(--teal); }
+
+    .auth-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px; font-weight: 700;
+      text-align: center; margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+      font-size: 14px; color: var(--text-muted);
+      text-align: center; margin-bottom: 32px;
+    }
+
+    .form-group { margin-bottom: 20px; }
+
+    .form-label {
+      display: block;
+      font-size: 12px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--text-muted); margin-bottom: 8px;
+    }
+
+    .input-wrap { position: relative; }
+
+    .input-icon {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px; opacity: 0.45;
+      pointer-events: none;
+    }
+
+    .form-input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 14px 16px 14px 40px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-input::placeholder { color: var(--text-muted); }
+
+    .form-input:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 4px var(--teal-dim);
+    }
+
+    /* password strength bar */
+    .pw-strength {
+      margin-top: 8px;
+      height: 3px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+
+    .pw-strength-fill {
+      height: 100%;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.3s, background 0.3s;
+    }
+
+    .pw-toggle {
+      position: absolute;
+      right: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      cursor: pointer; font-size: 16px;
+      opacity: 0.45; transition: opacity 0.2s;
+      padding: 0; color: var(--text);
+    }
+
+    .pw-toggle:hover { opacity: 0.85; }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--teal), #00c896);
+      color: #080d1a;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700; font-size: 15px;
+      border: none; border-radius: 12px;
+      padding: 14px 20px; cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px var(--teal-glow);
+      margin-top: 8px;
+      display: flex; align-items: center;
+      justify-content: center; gap: 8px;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(0,229,195,0.45);
+    }
+
+    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(8,13,26,0.3);
+      border-top-color: #080d1a;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .auth-footer {
+      text-align: center; margin-top: 24px;
+      font-size: 14px; color: var(--text-muted);
+    }
+
+    .auth-link { color: var(--teal); text-decoration: none; font-weight: 600; }
+    .auth-link:hover { text-decoration: underline; }
+
+    .alert {
+      padding: 12px 16px; border-radius: 10px;
+      margin-bottom: 20px; font-size: 13px; display: none;
+    }
+
+    .alert.error {
+      background: rgba(255,92,92,0.15);
+      border: 1px solid rgba(255,92,92,0.3);
+      color: #ff5c5c;
+    }
+
+    .alert.success {
+      background: rgba(0,229,195,0.15);
+      border: 1px solid rgba(0,229,195,0.3);
+      color: var(--teal);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="logo">
+      <div class="logo-icon">💹</div>
+      <div class="logo-text">Fin<span>Wise</span></div>
+    </div>
+
+    <h1 class="auth-title">Create Account</h1>
+    <p class="auth-subtitle">Start tracking your expenses with AI</p>
+
+    <div id="alert" class="alert"></div>
+
+    <form id="signupForm" onsubmit="handleSignup(event)">
+      <div class="form-group">
+        <label class="form-label" for="username">Username</label>
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input type="text" class="form-input" id="username" placeholder="Choose a username" minlength="3" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉️</span>
+          <input type="email" class="form-input" id="email" placeholder="your@email.com" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" class="form-input" id="password" placeholder="Create a strong password" minlength="6" required oninput="checkStrength(this.value)" />
+          <button type="button" class="pw-toggle" onclick="togglePassword('password', this)">👁️</button>
+        </div>
+        <div class="pw-strength">
+          <div class="pw-strength-fill" id="strengthFill"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="confirmPassword">Confirm Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" class="form-input" id="confirmPassword" placeholder="Re-enter your password" minlength="6" required />
+          <button type="button" class="pw-toggle" onclick="togglePassword('confirmPassword', this)">👁️</button>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <div class="spinner" id="spinner"></div>
+        <span id="btnText">Create Account</span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="login.html" class="auth-link">Login</a>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = 'http://localhost:5000';
+
+    function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+      }
+    }
+
+    function checkStrength(val) {
+      const fill = document.getElementById('strengthFill');
+      let strength = 0;
+      if (val.length >= 6) strength++;
+      if (val.length >= 10) strength++;
+      if (/[A-Z]/.test(val)) strength++;
+      if (/[0-9]/.test(val)) strength++;
+      if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+      const colors = ['#ff5c5c', '#ff9f45', '#f5a623', '#00c896', '#00e5c3'];
+      const widths  = ['20%', '40%', '60%', '80%', '100%'];
+      fill.style.width = val.length === 0 ? '0%' : widths[strength - 1];
+      fill.style.background = val.length === 0 ? 'transparent' : colors[strength - 1];
+    }
+
+    function setLoading(loading) {
+      const btn = document.getElementById('submitBtn');
+      const spinner = document.getElementById('spinner');
+      const text = document.getElementById('btnText');
+      btn.disabled = loading;
+      spinner.style.display = loading ? 'block' : 'none';
+      text.textContent = loading ? 'Creating account...' : 'Create Account';
+    }
+
+    async function handleSignup(event) {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const alertEl = document.getElementById('alert');
+
+      if (password !== confirmPassword) {
+        alertEl.className = 'alert error';
+        alertEl.textContent = '❌ Passwords do not match';
+        alertEl.style.display = 'block';
+        return;
+      }
+
+      setLoading(true);
+      alertEl.style.display = 'none';
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: username, email, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alertEl.className = 'alert success';
+          alertEl.textContent = '✅ Account created! Redirecting to login...';
+          alertEl.style.display = 'block';
+          setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+        } else {
+          alertEl.className = 'alert error';
+          alertEl.textContent = '❌ ' + data.error;
+          alertEl.style.display = 'block';
+          setLoading(false);
+        }
+      } catch (error) {
+        alertEl.className = 'alert error';
+        alertEl.textContent = '❌ Connection error. Make sure Flask server is running.';
+        alertEl.style.display = 'block';
+        setLoading(false);
+      }
+    }
+  </script>
+</body>
+</html>

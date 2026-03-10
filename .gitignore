@@ -3,6 +3,8 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+finwise.db
+instance/
 
 # Virtual environment
 venv/
@@ -10,9 +12,6 @@ env/
 
 # Database
 *.db
-
-# ML model
-*.pkl
 
 # OS files
 .DS_Store

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Preferences - FinWise</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="main">
+      <h2>⚙️ Preferences</h2>
+
+      <div class="card" style="max-width: 500px">
+        <h3>Change Password</h3>
+
+        <input
+          id="currentPassword"
+          type="password"
+          placeholder="Current Password"
+          class="field-input"
+        />
+        <br /><br />
+
+        <input
+          id="newPassword"
+          type="password"
+          placeholder="New Password"
+          class="field-input"
+        />
+        <br /><br />
+
+        <input
+          id="confirmPassword"
+          type="password"
+          placeholder="Confirm New Password"
+          class="field-input"
+        />
+        <br /><br />
+
+        <button onclick="changePassword()" class="classify-action-btn">
+          Update Password
+        </button>
+
+        <p id="pwMessage"></p>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
