@@ -9,6 +9,7 @@ import os
 from models import db, Transaction, Budget, User
 from sqlalchemy import func, extract
 import secrets
+import joblib
 
 # ══════════════════════════════════════════════════════════
 #         FinWise Backend API — Flask + Auth
