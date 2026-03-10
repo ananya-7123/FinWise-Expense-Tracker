@@ -11,6 +11,9 @@ from sqlalchemy import func, extract
 import secrets
 import joblib
 
+def preprocess(text):
+    return text
+
 # ══════════════════════════════════════════════════════════
 #         FinWise Backend API — Flask + Auth
 # ══════════════════════════════════════════════════════════
