@@ -47,7 +47,13 @@ def preprocess(text):
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-MODEL_PATH = 'model.pkl'
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "model.pkl")
+
+model = joblib.load(MODEL_PATH)
+
 try:
     with open(MODEL_PATH, 'rb') as f:
         model_bundle = pickle.load(f)
