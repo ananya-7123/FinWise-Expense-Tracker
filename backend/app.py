@@ -53,7 +53,11 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "model.pkl")
 
-model = joblib.load(MODEL_PATH)
+try:
+    model = joblib.load(MODEL_PATH)
+except Exception as e:
+    print("Model loading error:", e)
+    model = None
 
 try:
     with open(MODEL_PATH, 'rb') as f:
