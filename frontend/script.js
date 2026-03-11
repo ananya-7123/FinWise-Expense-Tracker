@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://finwise-expense-tracker.onrender.com";
 
 async function changePassword() {
   const currentPassword = document.getElementById("currentPassword").value;
@@ -12,7 +12,7 @@ async function changePassword() {
   }
 
   try {
-    const response = await fetch("http://localhost:5000/api/change-password", {
+    await fetch(`${API_BASE_URL}/api/change-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -509,7 +509,6 @@ async function loadTransactionsFromDB() {
       loadDashboardStats();
       loadCategoryBreakdown();
       loadSmartTips();
-      
     }
   } catch (error) {
     console.error("❌ Error loading transactions:", error);

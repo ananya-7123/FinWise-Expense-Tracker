@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://finwise-expense-tracker.onrender.com";
 
 let budgets = {};
 let currentMonthStats = null;
