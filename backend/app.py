@@ -52,30 +52,39 @@ def preprocess(text):
     return text
 
 import os
+import joblib
+import pickle
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "model.pkl")
 
-try:
-    model = joblib.load(MODEL_PATH)
-except Exception as e:
-    print("Model loading error:", e)
-    model = None
+model_bundle = None
 
 try:
-    with open(MODEL_PATH, 'rb') as f:
+    with open(MODEL_PATH, "rb") as f:
         model_bundle = pickle.load(f)
     print("✅ Model loaded successfully!")
-except:
-    print("❌ ERROR: model.pkl not found!")
-    exit(1)
 
-word_tfidf = model_bundle['word_tfidf']
-char_tfidf = model_bundle['char_tfidf']
-classifier = model_bundle['classifier']
-preprocess_fn = model_bundle.get('preprocess', preprocess)
-categories = model_bundle['categories']
+except Exception as e:
+    print("⚠️ Model loading error:", e)
+    model_bundle = None
 
+
+# If model exists, extract components
+if model_bundle:
+    word_tfidf = model_bundle["word_tfidf"]
+    char_tfidf = model_bundle["char_tfidf"]
+    classifier = model_bundle["classifier"]
+    preprocess_fn = model_bundle.get("preprocess", preprocess)
+    categories = model_bundle["categories"]
+
+else:
+    # fallback so server doesn't crash
+    word_tfidf = None
+    char_tfidf = None
+    classifier = None
+    preprocess_fn = preprocess
+    categories = []
 
 # ══════════════════════════════════════════════════════════
 #               AUTHENTICATION
