@@ -1,3 +1,5 @@
+from urllib import response
+
 from flask import Flask, request, jsonify, session 
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -114,17 +116,22 @@ def login():
         if not user or not user.check_password(password):
             return jsonify({'success': False, 'error': 'Invalid email or password'}), 401
 
-        login_user(user, remember=True)  
+        login_user(user, remember=True)
 
-        return jsonify({
+        # ✅ KEEP THIS INSIDE TRY
+        response = jsonify({
             'success': True,
             'message': 'Login successful',
             'user': user.to_dict()
         })
 
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+
+        return response
+
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
-
+    
 
 @app.route('/api/auth/logout', methods=['POST'])
 @login_required
