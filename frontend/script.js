@@ -359,9 +359,7 @@ async function classifyExpense() {
     }
   } catch (error) {
     console.error("Classification Error:", error);
-    alert(
-      "❌ AI service unavailable . Try again later.",
-    );
+    alert("❌ AI service unavailable . Try again later.");
   } finally {
     classifyBtn.disabled = false;
     classifyBtn.innerHTML = "⚡ Classify";
@@ -435,9 +433,7 @@ async function checkAPIConnection() {
     loadTransactionsFromDB();
     loadDashboardStats();
   } catch (error) {
-    console.error(
-      "❌ AI service unavailable. Try again.",
-    );
+    console.error("❌ AI service unavailable. Try again.");
   }
 }
 

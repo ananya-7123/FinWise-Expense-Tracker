@@ -1,415 +1,465 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Budget Management — FinWise</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    .budget-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    
-    .budget-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      transition: all 0.2s;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .budget-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-    }
-    
-    .budget-card.food::before { background: linear-gradient(90deg, #00e5c3, #00c896); }
-    .budget-card.transport::before { background: linear-gradient(90deg, #4f8ef7, #8b5cf6); }
-    .budget-card.healthcare::before { background: linear-gradient(90deg, #a855f7, #ec4899); }
-    .budget-card.bills::before { background: linear-gradient(90deg, #f5a623, #ff9f45); }
-    .budget-card.shopping::before { background: linear-gradient(90deg, #ff9f45, #f97316); }
-    .budget-card.entertainment::before { background: linear-gradient(90deg, #f97316, #ef4444); }
-    
-    .budget-card:hover {
-      background: var(--surface-hover);
-      transform: translateY(-2px);
-    }
-    
-    .budget-icon {
-      font-size: 32px;
-      margin-bottom: 12px;
-    }
-    
-    .budget-category {
-      font-family: 'Syne', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    
-    .budget-status {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
-    
-    .budget-amounts {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 12px;
-    }
-    
-    .budget-spent {
-      font-family: 'Syne', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-    }
-    
-    .budget-limit {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-    
-    .budget-progress {
-      height: 8px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 99px;
-      overflow: hidden;
-      margin-bottom: 12px;
-    }
-    
-    .budget-progress-bar {
-      height: 100%;
-      border-radius: 99px;
-      transition: width 0.5s ease, background 0.3s;
-    }
-    
-    .budget-progress-bar.good { background: linear-gradient(90deg, #00e5c3, #00c896); }
-    .budget-progress-bar.warning { background: linear-gradient(90deg, #f5a623, #ff9f45); }
-    .budget-progress-bar.danger { background: linear-gradient(90deg, #ff5c5c, #ff8a50); }
-    
-    .budget-actions {
-      display: flex;
-      gap: 8px;
-    }
-    
-    .budget-btn {
-      flex: 1;
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.05);
-      color: var(--text-dim);
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .budget-btn:hover {
-      background: rgba(255,255,255,0.1);
-      color: var(--text);
-    }
-    
-    .add-budget-card {
-      border: 2px dashed var(--border);
-      background: transparent;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      min-height: 200px;
-    }
-    
-    .add-budget-card:hover {
-      border-color: var(--teal);
-      background: var(--teal-dim);
-    }
-    
-    .add-budget-icon {
-      font-size: 48px;
-      margin-bottom: 12px;
-      opacity: 0.5;
-    }
-    
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .modal.show {
-      display: flex;
-    }
-    
-    .modal-content {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 32px;
-      max-width: 400px;
-      width: 90%;
-    }
-    
-    .modal-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 24px;
-    }
-    
-    .form-group {
-      margin-bottom: 20px;
-    }
-    
-    .form-label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-    
-    .form-input, .form-select {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      padding: 12px 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    
-    .form-input:focus, .form-select:focus {
-      border-color: var(--teal);
-      box-shadow: 0 0 0 3px var(--teal-dim);
-    }
-    
-    .modal-actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-    }
-    
-    .modal-btn {
-      flex: 1;
-      padding: 12px 20px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
-    }
-    
-    .modal-btn.primary {
-      background: linear-gradient(135deg, var(--teal), var(--emerald));
-      color: #080d1a;
-    }
-    
-    .modal-btn.secondary {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text-dim);
-    }
-    
-    .modal-btn:hover {
-      transform: translateY(-1px);
-    }
-  </style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Budget Management — FinWise</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .budget-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
 
-  <!-- ===== SIDEBAR ===== -->
-  <aside class="sidebar">
-    <div class="logo">
-      <div class="logo-icon">💹</div>
-      <div class="logo-text">Fin<span>Wise</span></div>
-    </div>
+      .budget-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        transition: all 0.2s;
+        position: relative;
+        overflow: hidden;
+      }
 
-    <div class="nav-section">
-      <div class="nav-label">Overview</div>
-      <a class="nav-item" href="index.html">
-        <span class="nav-icon">🏠</span> Dashboard
-      </a>
-      <a class="nav-item" href="index.html#classifySection">
-        <span class="nav-icon">⚡</span> Classifier
-      </a>
-      <a class="nav-item" href="history.html">
-        <span class="nav-icon">🧾</span> Transactions
-      </a>
-    </div>
+      .budget-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+      }
 
-    <div class="nav-section">
-      <div class="nav-label">Finance</div>
-      <a class="nav-item active" href="budgets.html">
-        <span class="nav-icon">🎯</span> Budgets
-      </a>
-      <a class="nav-item" href="#">
-        <span class="nav-icon">💰</span> Accounts
-      </a>
-      <a class="nav-item" href="history.html">
-        <span class="nav-icon">📁</span> History
-      </a>
-    </div>
+      .budget-card.food::before {
+        background: linear-gradient(90deg, #00e5c3, #00c896);
+      }
+      .budget-card.transport::before {
+        background: linear-gradient(90deg, #4f8ef7, #8b5cf6);
+      }
+      .budget-card.healthcare::before {
+        background: linear-gradient(90deg, #a855f7, #ec4899);
+      }
+      .budget-card.bills::before {
+        background: linear-gradient(90deg, #f5a623, #ff9f45);
+      }
+      .budget-card.shopping::before {
+        background: linear-gradient(90deg, #ff9f45, #f97316);
+      }
+      .budget-card.entertainment::before {
+        background: linear-gradient(90deg, #f97316, #ef4444);
+      }
 
-    <div class="nav-section">
-      <div class="nav-label">Settings</div>
-      <a class="nav-item" href="#">
-        <span class="nav-icon">⚙️</span> Preferences
-      </a>
-    </div>
+      .budget-card:hover {
+        background: var(--surface-hover);
+        transform: translateY(-2px);
+      }
 
-    <div class="sidebar-footer">
-      <div class="ai-badge">AI Engine Active</div>
-      <div class="ai-text">NLP Classifier — Logistic Regression · 93.4% Accuracy</div>
-    </div>
-  </aside>
+      .budget-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+      }
 
-  <!-- ===== MAIN CONTENT ===== -->
-  <main class="main">
+      .budget-category {
+        font-family: "Syne", sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
 
-    <!-- TOPBAR -->
-    <div class="topbar">
-      <div>
-        <div class="page-title">Budget Management</div>
-        <div class="page-sub">Set limits and track your spending goals</div>
+      .budget-status {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+      }
+
+      .budget-amounts {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 12px;
+      }
+
+      .budget-spent {
+        font-family: "Syne", sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .budget-limit {
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      .budget-progress {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 99px;
+        overflow: hidden;
+        margin-bottom: 12px;
+      }
+
+      .budget-progress-bar {
+        height: 100%;
+        border-radius: 99px;
+        transition:
+          width 0.5s ease,
+          background 0.3s;
+      }
+
+      .budget-progress-bar.good {
+        background: linear-gradient(90deg, #00e5c3, #00c896);
+      }
+      .budget-progress-bar.warning {
+        background: linear-gradient(90deg, #f5a623, #ff9f45);
+      }
+      .budget-progress-bar.danger {
+        background: linear-gradient(90deg, #ff5c5c, #ff8a50);
+      }
+
+      .budget-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .budget-btn {
+        flex: 1;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-dim);
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .budget-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text);
+      }
+
+      .add-budget-card {
+        border: 2px dashed var(--border);
+        background: transparent;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        min-height: 200px;
+      }
+
+      .add-budget-card:hover {
+        border-color: var(--teal);
+        background: var(--teal-dim);
+      }
+
+      .add-budget-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal.show {
+        display: flex;
+      }
+
+      .modal-content {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 32px;
+        max-width: 400px;
+        width: 90%;
+      }
+
+      .modal-title {
+        font-family: "Syne", sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 24px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+      }
+
+      .form-input,
+      .form-select {
+        width: 100%;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        padding: 12px 14px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .form-input:focus,
+      .form-select:focus {
+        border-color: var(--teal);
+        box-shadow: 0 0 0 3px var(--teal-dim);
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .modal-btn {
+        flex: 1;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+      }
+
+      .modal-btn.primary {
+        background: linear-gradient(135deg, var(--teal), var(--emerald));
+        color: #080d1a;
+      }
+
+      .modal-btn.secondary {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-dim);
+      }
+
+      .modal-btn:hover {
+        transform: translateY(-1px);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">💹</div>
+        <div class="logo-text">Fin<span>Wise</span></div>
       </div>
-      <div class="topbar-right">
-        <select class="month-selector" id="budgetMonthSelector">
-          <!-- Populated by JavaScript -->
-        </select>
-        <button class="add-btn" onclick="openAddBudgetModal()">+ Set Budget</button>
-        <div class="avatar" onclick="showLogoutMenu()" style="cursor: pointer;" id="userAvatar">AJ</div>
-<div class="logout-menu" id="logoutMenu" style="display: none;">
-  <div class="logout-user" id="logoutUsername">User</div>
-  <button class="logout-btn" onclick="handleLogout()">🚪 Logout</button>
-</div>
-      </div>
-    </div>
 
-    <!-- BUDGET ALERT -->
-    <div class="alert-banner" id="budgetAlert" style="display: none; background: rgba(255,92,92,0.1); border-color: rgba(255,92,92,0.25);">
-      <span class="alert-icon">⚠️</span>
-      <div class="alert-text" id="budgetAlertText">
-        <!-- Populated by JavaScript -->
+      <div class="nav-section">
+        <div class="nav-label">Overview</div>
+        <a class="nav-item" href="index.html">
+          <span class="nav-icon">🏠</span> Dashboard
+        </a>
+        <a class="nav-item" href="index.html#classifySection">
+          <span class="nav-icon">⚡</span> Classifier
+        </a>
+        <a class="nav-item" href="history.html">
+          <span class="nav-icon">🧾</span> Transactions
+        </a>
       </div>
-      <button class="alert-close" onclick="closeBudgetAlert()">✕</button>
-    </div>
 
-    <!-- BUDGET OVERVIEW -->
-    <div class="stat-grid">
-      <div class="stat-card teal">
-        <div class="stat-label">🎯 Total Budget</div>
-        <div class="stat-value" id="totalBudget">₹0</div>
-        <div class="stat-change" id="totalBudgetStatus">Set your budgets</div>
+      <div class="nav-section">
+        <div class="nav-label">Finance</div>
+        <a class="nav-item active" href="budgets.html">
+          <span class="nav-icon">🎯</span> Budgets
+        </a>
+        <a class="nav-item" href="#">
+          <span class="nav-icon">💰</span> Accounts
+        </a>
+        <a class="nav-item" href="history.html">
+          <span class="nav-icon">📁</span> History
+        </a>
       </div>
-      <div class="stat-card amber">
-        <div class="stat-label">💸 Total Spent</div>
-        <div class="stat-value" id="totalSpent">₹0</div>
-        <div class="stat-change" id="totalSpentPercent">0% of budget</div>
-      </div>
-      <div class="stat-card blue">
-        <div class="stat-label">💰 Remaining</div>
-        <div class="stat-value" id="totalRemaining">₹0</div>
-        <div class="stat-change" id="daysRemaining">-- days left</div>
-      </div>
-      <div class="stat-card red">
-        <div class="stat-label">⚠️ Alerts</div>
-        <div class="stat-value" id="alertCount">0</div>
-        <div class="stat-change">Categories over budget</div>
-      </div>
-    </div>
 
-    <!-- BUDGETS GRID -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">📊 Category Budgets</div>
-        <div class="card-sub">Click on a category to edit or delete</div>
+      <div class="nav-section">
+        <div class="nav-label">Settings</div>
+        <a class="nav-item" href="#">
+          <span class="nav-icon">⚙️</span> Preferences
+        </a>
       </div>
-      
-      <div class="budget-grid" id="budgetGrid">
-        <!-- Populated by JavaScript -->
-        
-        <div class="budget-card add-budget-card" onclick="openAddBudgetModal()">
-          <div class="add-budget-icon">➕</div>
-          <div style="font-size: 14px; font-weight: 600; color: var(--text-dim);">
-            Add New Budget
+
+      <div class="sidebar-footer">
+        <div class="ai-badge">AI Engine Active</div>
+        <div class="ai-text">
+          NLP Classifier — Logistic Regression · 93.4% Accuracy
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main">
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div>
+          <div class="page-title">Budget Management</div>
+          <div class="page-sub">Set limits and track your spending goals</div>
+        </div>
+        <div class="topbar-right">
+          <select class="month-selector" id="budgetMonthSelector">
+            <!-- Populated by JavaScript -->
+          </select>
+          <button class="add-btn" onclick="openAddBudgetModal()">
+            + Set Budget
+          </button>
+          <div
+            class="avatar"
+            onclick="showLogoutMenu()"
+            style="cursor: pointer"
+            id="userAvatar"
+          >
+            AJ
+          </div>
+          <div class="logout-menu" id="logoutMenu" style="display: none">
+            <div class="logout-user" id="logoutUsername">User</div>
+            <button class="logout-btn" onclick="handleLogout()">
+              🚪 Logout
+            </button>
           </div>
         </div>
       </div>
+
+      <!-- BUDGET ALERT -->
+      <div
+        class="alert-banner"
+        id="budgetAlert"
+        style="
+          display: none;
+          background: rgba(255, 92, 92, 0.1);
+          border-color: rgba(255, 92, 92, 0.25);
+        "
+      >
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-text" id="budgetAlertText">
+          <!-- Populated by JavaScript -->
+        </div>
+        <button class="alert-close" onclick="closeBudgetAlert()">✕</button>
+      </div>
+
+      <!-- BUDGET OVERVIEW -->
+      <div class="stat-grid">
+        <div class="stat-card teal">
+          <div class="stat-label">🎯 Total Budget</div>
+          <div class="stat-value" id="totalBudget">₹0</div>
+          <div class="stat-change" id="totalBudgetStatus">Set your budgets</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-label">💸 Total Spent</div>
+          <div class="stat-value" id="totalSpent">₹0</div>
+          <div class="stat-change" id="totalSpentPercent">0% of budget</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">💰 Remaining</div>
+          <div class="stat-value" id="totalRemaining">₹0</div>
+          <div class="stat-change" id="daysRemaining">-- days left</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">⚠️ Alerts</div>
+          <div class="stat-value" id="alertCount">0</div>
+          <div class="stat-change">Categories over budget</div>
+        </div>
+      </div>
+
+      <!-- BUDGETS GRID -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📊 Category Budgets</div>
+          <div class="card-sub">Click on a category to edit or delete</div>
+        </div>
+
+        <div class="budget-grid" id="budgetGrid">
+          <!-- Populated by JavaScript -->
+
+          <div
+            class="budget-card add-budget-card"
+            onclick="openAddBudgetModal()"
+          >
+            <div class="add-budget-icon">➕</div>
+            <div
+              style="font-size: 14px; font-weight: 600; color: var(--text-dim)"
+            >
+              Add New Budget
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ADD/EDIT BUDGET MODAL -->
+    <div class="modal" id="budgetModal">
+      <div class="modal-content">
+        <div class="modal-title" id="modalTitle">Set Budget</div>
+
+        <form id="budgetForm" onsubmit="saveBudget(event)">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="budgetCategory" required>
+              <option value="">Select Category</option>
+              <option value="Food">🍔 Food</option>
+              <option value="Transport">🚗 Transport</option>
+              <option value="Healthcare">💊 Healthcare</option>
+              <option value="Bills">⚡ Bills</option>
+              <option value="Shopping">🛍️ Shopping</option>
+              <option value="Entertainment">🎬 Entertainment</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Monthly Limit (₹)</label>
+            <input
+              type="number"
+              class="form-input"
+              id="budgetAmount"
+              placeholder="5000"
+              min="0"
+              step="0.01"
+              required
+            />
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="modal-btn secondary"
+              onclick="closeModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="modal-btn primary">Save Budget</button>
+          </div>
+        </form>
+      </div>
     </div>
 
-  </main>
-
-  <!-- ADD/EDIT BUDGET MODAL -->
-  <div class="modal" id="budgetModal">
-    <div class="modal-content">
-      <div class="modal-title" id="modalTitle">Set Budget</div>
-      
-      <form id="budgetForm" onsubmit="saveBudget(event)">
-        <div class="form-group">
-          <label class="form-label">Category</label>
-          <select class="form-select" id="budgetCategory" required>
-            <option value="">Select Category</option>
-            <option value="Food">🍔 Food</option>
-            <option value="Transport">🚗 Transport</option>
-            <option value="Healthcare">💊 Healthcare</option>
-            <option value="Bills">⚡ Bills</option>
-            <option value="Shopping">🛍️ Shopping</option>
-            <option value="Entertainment">🎬 Entertainment</option>
-          </select>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Monthly Limit (₹)</label>
-          <input 
-            type="number" 
-            class="form-input" 
-            id="budgetAmount" 
-            placeholder="5000" 
-            min="0"
-            step="0.01"
-            required 
-          />
-        </div>
-        
-        <div class="modal-actions">
-          <button type="button" class="modal-btn secondary" onclick="closeModal()">
-            Cancel
-          </button>
-          <button type="submit" class="modal-btn primary">
-            Save Budget
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script src="budgets.js"></script>
-</body>
+    <script src="budgets.js"></script>
+  </body>
 </html>
