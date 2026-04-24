@@ -317,7 +317,7 @@ async function deleteBudget(category) {
     }
   } catch (err) {
     console.error("Delete budget error:", err);
-    alert("❌ Error connecting to server");
+    alert("❌ AI service unavailable. Please try again.");
   }
 }
 
@@ -354,7 +354,7 @@ async function saveBudget(event) {
     }
   } catch (err) {
     console.error("Save budget error:", err);
-    alert("❌ Error connecting to server");
+    alert("❌ AI service unavailable. Please try again.");
   }
 }
 

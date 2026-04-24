@@ -253,7 +253,7 @@ async function deleteTransaction(id) {
     }
   } catch (error) {
     console.error("Error deleting transaction:", error);
-    alert("❌ Error connecting to server");
+    alert("❌ AI service unavailable. Please try again.");
   }
 }
 

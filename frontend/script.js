@@ -36,7 +36,7 @@ async function changePassword() {
       message.innerText = "❌ " + data.error;
     }
   } catch (error) {
-    message.innerText = "❌ Server error";
+    message.innerText = "❌ AI service unavailable. Please try again.";
   }
 }
 
@@ -360,7 +360,7 @@ async function classifyExpense() {
   } catch (error) {
     console.error("Classification Error:", error);
     alert(
-      "❌ Error connecting to AI backend. Make sure Flask server is running on port 5000!",
+      "❌ AI service unavailable . Try again later.",
     );
   } finally {
     classifyBtn.disabled = false;
@@ -436,7 +436,7 @@ async function checkAPIConnection() {
     loadDashboardStats();
   } catch (error) {
     console.error(
-      "❌ Flask API Not Connected. Make sure server is running on port 5000",
+      "❌ AI service unavailable. Try again.",
     );
   }
 }
@@ -540,7 +540,7 @@ async function deleteTransaction(id) {
     }
   } catch (error) {
     console.error("Error deleting transaction:", error);
-    alert("❌ Error connecting to server");
+    alert("❌ AI service unavailable. Please try again.");
   }
 }
 
