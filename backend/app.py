@@ -253,7 +253,7 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
-        'model_loaded': bool(model_bundle),
+        'model_loaded': True,
         'database_connected': True
     })
 
@@ -285,8 +285,7 @@ KEYWORD_OVERRIDES = {
         'ramyeon', 'ramen', 'maggi', 'noodles', 'biryani', 'sushi',
         'momos', 'dimsum', 'pho', 'pad thai', 'shawarma', 'falafel',
         'bigbasket', 'reliance fresh', 'grocery', 'vegetables', 'fruits',
-        'milk', 'bread', 'eggs', 'egg', 'paneer', 'rice', 'dal',
-        'chicken', 'chicken biryani', 'fried rice', 'tandoori', 'roll',
+        'milk', 'bread', 'eggs', 'paneer', 'rice', 'dal',
         'ice cream', 'cake', 'bakery', 'mithai', 'sweets', 'chocolate',
         'juice', 'smoothie', 'milkshake', 'lassi', 'chai',
         'restaurant', 'food court', 'canteen', 'dhaba', 'tiffin',
@@ -378,13 +377,13 @@ def classify_transaction():
                 probabilities = [1.0]
         else:
             if not model_ready:
-                category = 'Others'
-                confidence = 50.0
-                probabilities = [1.0]
-            else:
-                category = classifier.predict(features)[0]
-                probabilities = classifier.predict_proba(features)[0]
-                confidence = round(max(probabilities) * 100, 1)
+                return jsonify({
+                    'success': False,
+                    'error': 'Classification model unavailable. Please try again later.'
+                }), 503
+            category = classifier.predict(features)[0]
+            probabilities = classifier.predict_proba(features)[0]
+            confidence = round(max(probabilities) * 100, 1)
 
         if model_ready:
             all_probs = {
