@@ -114,8 +114,12 @@ from functools import wraps
 
 
 
-@app.route('/api/auth/login', methods=['POST'])
+@app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
 def login():
+
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     try:
         data = request.get_json()
         email = data.get('email')
@@ -146,21 +150,30 @@ def login():
         return jsonify({'success': False, 'error': str(e)}), 500
     
 
-@app.route('/api/auth/logout', methods=['POST'])
+@app.route('/api/auth/logout', methods=['POST', 'OPTIONS'])
 @login_required
 def logout():
+
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     logout_user()
     return jsonify({'success': True, 'message': 'Logged out successfully'})
 
-
-@app.route('/api/auth/me', methods=['GET'])
+@app.route('/api/auth/me', methods=['GET', 'OPTIONS'])
 @login_required
 def get_current_user():
+
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     return jsonify({'success': True, 'user': current_user.to_dict()})
 
-
-@app.route('/api/auth/signup', methods=['POST'])
+@app.route('/api/auth/signup', methods=['POST', 'OPTIONS'])
 def signup():
+
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
     try:
         data = request.get_json()
         name = data.get('name')
@@ -180,9 +193,13 @@ def signup():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-@app.route('/api/change-password', methods=['POST'])
+@app.route('/api/change-password', methods=['POST', 'OPTIONS'])
 @login_required
 def change_password():
+
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     data = request.get_json()
     current_password = data.get("currentPassword")
     new_password = data.get("newPassword")
@@ -204,8 +221,12 @@ def home():
     return jsonify({'status': 'online', 'service': 'FinWise AI Backend', 'version': '2.0'})
 
 
-@app.route('/api/health', methods=['GET'])
+@app.route('/api/health', methods=['GET', 'OPTIONS'])
 def health_check():
+
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
@@ -296,10 +317,14 @@ def keyword_override(description):
 # ══════════════════════════════════════════════════════════
 #            CLASSIFICATION ENDPOINT (Protected)
 # ══════════════════════════════════════════════════════════
-
-@app.route('/api/classify', methods=['POST'])
+@app.route('/api/classify', methods=['POST', 'OPTIONS'])
 @login_required
 def classify_transaction():
+
+    #  HANDLE PREFLIGHT REQUEST
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     try:
         data = request.get_json()
         description = data.get('description', '').strip()
@@ -314,7 +339,6 @@ def classify_transaction():
             word_tfidf.transform([cleaned]),
             char_tfidf.transform([cleaned])
         ])
-
         # Keyword override first, ML model as fallback
         override = keyword_override(description)
         if override:
@@ -372,9 +396,13 @@ def classify_transaction():
 #           TRANSACTION ENDPOINTS (Protected)
 # ══════════════════════════════════════════════════════════
 
-@app.route('/api/transactions', methods=['GET'])
+@app.route('/api/transactions', methods=['GET', 'OPTIONS'])
 @login_required
 def get_transactions():
+
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     try:
         category = request.args.get('category')
         limit = request.args.get('limit', 100, type=int)
@@ -397,10 +425,13 @@ def get_transactions():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-
-@app.route('/api/transactions/<int:transaction_id>', methods=['DELETE'])
+@app.route('/api/transactions/<int:transaction_id>', methods=['DELETE', 'OPTIONS'])
 @login_required
 def delete_transaction(transaction_id):
+
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     try:
         transaction = Transaction.query.filter_by(
             id=transaction_id,
@@ -416,10 +447,14 @@ def delete_transaction(transaction_id):
 # ══════════════════════════════════════════════════════════
 #             STATISTICS ENDPOINT (Protected)
 # ══════════════════════════════════════════════════════════
-
-@app.route('/api/stats', methods=['GET'])
+@app.route('/api/stats', methods=['GET', 'OPTIONS'])
 @login_required
 def get_stats():
+
+    # 🔥 ADD THIS LINE FIRST
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     try:
         month = request.args.get('month')
         query = Transaction.query.filter_by(user_id=current_user.id)
@@ -497,12 +532,15 @@ def get_category_metadata(category):
 #                BUDGET ENDPOINTS (Protected)
 # ══════════════════════════════════════════════════════════
 
-@app.route('/api/budgets', methods=['GET'])
+@app.route('/api/budgets', methods=['GET', 'OPTIONS'])
 @login_required
 def get_budgets():
+
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     try:
         user_budgets = Budget.query.filter_by(user_id=current_user.id).all()
-        result = []
         for budget in user_budgets:
             spent = db.session.query(func.sum(Transaction.amount)).filter(
                 Transaction.user_id == current_user.id,
@@ -522,6 +560,10 @@ def get_budgets():
 @app.route('/api/budgets', methods=['POST'])
 @login_required
 def save_budget():
+
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     try:
         data = request.get_json()
         category = data.get('category', '').strip()
@@ -539,10 +581,13 @@ def save_budget():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-
-@app.route('/api/budgets/<string:category>', methods=['DELETE'])
+@app.route('/api/budgets/<string:category>', methods=['DELETE', 'OPTIONS'])
 @login_required
 def delete_budget(category):
+
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     try:
         budget = Budget.query.filter_by(user_id=current_user.id, category=category).first()
         if not budget:
