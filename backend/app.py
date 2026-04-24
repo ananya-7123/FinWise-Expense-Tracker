@@ -355,25 +355,40 @@ def classify_transaction():
             return jsonify({'error': 'Description cannot be empty'}), 400
 
         cleaned = preprocess_fn(description)
-        features = hstack([
-            word_tfidf.transform([cleaned]),
-            char_tfidf.transform([cleaned])
-        ])
+        model_ready = all([word_tfidf, char_tfidf, classifier])
+        features = None
+        if model_ready:
+            features = hstack([
+                word_tfidf.transform([cleaned]),
+                char_tfidf.transform([cleaned])
+            ])
+
         # Keyword override first, ML model as fallback
         override = keyword_override(description)
         if override:
             category = override
             confidence = 95.0
-            probabilities = classifier.predict_proba(features)[0]
+            if model_ready:
+                probabilities = classifier.predict_proba(features)[0]
+            else:
+                probabilities = [1.0]
         else:
+            if not model_ready:
+                return jsonify({
+                    'success': False,
+                    'error': 'Classification model unavailable. Please try again later.'
+                }), 503
             category = classifier.predict(features)[0]
             probabilities = classifier.predict_proba(features)[0]
             confidence = round(max(probabilities) * 100, 1)
 
-        all_probs = {
-            cat: round(prob * 100, 2)
-            for cat, prob in zip(classifier.classes_, probabilities)
-        }
+        if model_ready:
+            all_probs = {
+                cat: round(prob * 100, 2)
+                for cat, prob in zip(classifier.classes_, probabilities)
+            }
+        else:
+            all_probs = {category: 100.0}
 
         category_data = get_category_metadata(category)
 
@@ -561,6 +576,7 @@ def get_budgets():
 
     try:
         user_budgets = Budget.query.filter_by(user_id=current_user.id).all()
+        result = []
         for budget in user_budgets:
             spent = db.session.query(func.sum(Transaction.amount)).filter(
                 Transaction.user_id == current_user.id,
