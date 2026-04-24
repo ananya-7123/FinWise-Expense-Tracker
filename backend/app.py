@@ -5,6 +5,7 @@ from flask_cors import CORS
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 import pickle
 import re
+import __main__
 from scipy.sparse import hstack
 from datetime import datetime, timedelta
 import os
@@ -103,6 +104,8 @@ MODEL_PATH = os.path.join(BASE_DIR, "model.pkl")
 model_bundle = None
 
 try:
+    # Compatibility for model.pkl objects trained in script __main__ context.
+    __main__.preprocess = preprocess
     with open(MODEL_PATH, "rb") as f:
         model_bundle = pickle.load(f)
     print("✅ Model loaded successfully!")
