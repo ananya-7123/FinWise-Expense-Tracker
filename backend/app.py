@@ -27,8 +27,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
-app.config['SESSION_COOKIE_HTTPONLY'] = False
-
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_DOMAIN'] = None
 
 db.init_app(app)
 login_manager = LoginManager()
@@ -120,7 +120,13 @@ def login():
             return jsonify({'success': False, 'error': 'Invalid email or password'}), 401
         login_user(user)
         response = jsonify({'success': True, 'message': 'Login successful', 'user': user.to_dict()})
-        response.set_cookie('user_id', str(user.id))
+        response.set_cookie(
+    'user_id',
+    str(user.id),
+    httponly=True,
+    secure=True,
+    samesite='None'
+)
         return response
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
