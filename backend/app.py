@@ -39,7 +39,10 @@ def handle_options(response):
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finwise.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = secrets.token_hex(16)
+app.config['SECRET_KEY'] = os.environ.get(
+    'SECRET_KEY',
+    'finwise-expense-tracker-stable-secret-change-me'
+)
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
