@@ -22,7 +22,12 @@ def preprocess(text):
 # ══════════════════════════════════════════════════════════
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, origins=["https://finwise-expense-tracker-1.onrender.com"])
+CORS(app,
+     supports_credentials=True,
+     resources={r"/api/*": {
+         "origins": "https://finwise-expense-tracker-1.onrender.com"
+     }})
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finwise.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
