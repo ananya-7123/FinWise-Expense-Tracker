@@ -24,9 +24,17 @@ def preprocess(text):
 app = Flask(__name__)
 CORS(app,
      supports_credentials=True,
-     resources={r"/api/*": {
-         "origins": "https://finwise-expense-tracker-1.onrender.com"
-     }})
+     origins=["https://finwise-expense-tracker-1.onrender.com"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     allow_headers=["Content-Type"])
+
+@app.after_request
+def handle_options(response):
+    response.headers["Access-Control-Allow-Origin"] = "https://finwise-expense-tracker-1.onrender.com"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    return response
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finwise.db'
