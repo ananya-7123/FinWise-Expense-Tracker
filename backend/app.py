@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 import os
 from models import db, Transaction, Budget, User
 from sqlalchemy import func, extract
+from sqlalchemy.exc import IntegrityError
 import secrets
 import joblib
 
@@ -102,16 +103,19 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "model.pkl")
 
 model_bundle = None
+model_load_error = None
 
 try:
     # Compatibility for model.pkl objects trained in script __main__ context.
     __main__.preprocess = preprocess
     with open(MODEL_PATH, "rb") as f:
         model_bundle = pickle.load(f)
+    model_load_error = None
     print("✅ Model loaded successfully!")
 
 except Exception as e:
     print("⚠️ Model loading error:", e)
+    model_load_error = str(e)
     model_bundle = None
 
 
@@ -201,21 +205,31 @@ def signup():
     if request.method == 'OPTIONS':
         return jsonify({'status': 'ok'}), 200
     try:
-        data = request.get_json()
-        name = data.get('name')
-        email = data.get('email')
+        data = request.get_json() or {}
+        name = (data.get('name') or '').strip()
+        email = (data.get('email') or '').strip().lower()
         password = data.get('password')
         if not name or not email or not password:
             return jsonify({'success': False, 'error': 'All fields required'}), 400
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
+
+        existing_email = User.query.filter_by(email=email).first()
+        if existing_email:
             return jsonify({'success': False, 'error': 'Email already registered'}), 400
+
+        existing_username = User.query.filter(func.lower(User.username) == name.lower()).first()
+        if existing_username:
+            return jsonify({'success': False, 'error': 'Username already taken'}), 400
+
         new_user = User(username=name, email=email)
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
         return jsonify({'success': True, 'message': 'Account created successfully'})
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': 'Email or username already registered'}), 400
     except Exception as e:
+        db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
@@ -256,7 +270,8 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
-        'model_loaded': True,
+        'model_loaded': model_bundle is not None,
+        'model_error': model_load_error,
         'database_connected': True
     })
 
@@ -382,7 +397,8 @@ def classify_transaction():
             if not model_ready:
                 return jsonify({
                     'success': False,
-                    'error': 'Classification model unavailable. Please try again later.'
+                    'error': 'Classification model unavailable. Please try again later.',
+                    'details': model_load_error
                 }), 503
             category = classifier.predict(features)[0]
             probabilities = classifier.predict_proba(features)[0]

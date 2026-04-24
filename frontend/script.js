@@ -45,15 +45,45 @@ async function changePassword() {
 // ══════════════════════════════════════════════════════════
 
 // Check if user is logged in
-function checkAuth() {
+async function checkAuth() {
   const user = localStorage.getItem("user");
   if (!user) {
     window.location.href = "login.html";
     return false;
   }
 
+  // Validate cookie-based session with backend to avoid fake logged-in state.
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+      return false;
+    }
+
+    const meData = await response.json();
+    if (!meData.success || !meData.user) {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+      return false;
+    }
+
+    localStorage.setItem("user", JSON.stringify(meData.user));
+  } catch (error) {
+    console.error("Auth check failed:", error);
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+    return false;
+  }
+
   // Display username
-  const userData = JSON.parse(user);
+  const userData = JSON.parse(localStorage.getItem("user"));
   const avatarElement = document.getElementById("userAvatar");
   const usernameElement = document.getElementById("logoutUsername");
 
@@ -109,9 +139,6 @@ async function handleLogout() {
     window.location.href = "login.html";
   }
 }
-
-// Check auth on page load
-checkAuth();
 
 // ══════════════════════════════════════════════════════════
 //                   TRANSACTIONS
@@ -313,7 +340,25 @@ async function classifyExpense() {
     });
 
     if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
+      let errorMessage = `API Error: ${response.status}`;
+      try {
+        const errData = await response.json();
+        if (errData && errData.error) {
+          errorMessage = errData.error;
+        }
+      } catch (_) {
+        // Keep generic message if response isn't JSON.
+      }
+
+      if (response.status === 401) {
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        alert("❌ Session expired. Please login again.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
@@ -359,7 +404,9 @@ async function classifyExpense() {
     }
   } catch (error) {
     console.error("Classification Error:", error);
-    alert("❌ AI service unavailable . Try again later.");
+    alert(
+      "❌ " + (error.message || "AI service unavailable. Try again later."),
+    );
   } finally {
     classifyBtn.disabled = false;
     classifyBtn.innerHTML = "⚡ Classify";
@@ -692,9 +739,18 @@ async function loadQuickStats() {
   }
 }
 
-// Run on page load
-renderTransactions();
-checkAPIConnection();
+// Run on page load only after server-side auth verification.
+async function initializeDashboard() {
+  const isAuthed = await checkAuth();
+  if (!isAuthed) {
+    return;
+  }
+
+  renderTransactions();
+  checkAPIConnection();
+}
+
+initializeDashboard();
 
 // ══════════════════════════════════════════════════════════
 //                    CHARTS & GRAPHS
