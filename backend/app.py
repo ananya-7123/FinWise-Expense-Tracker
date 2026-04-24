@@ -29,6 +29,9 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_DOMAIN'] = None
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+
 
 db.init_app(app)
 login_manager = LoginManager()
@@ -93,18 +96,7 @@ else:
 
 from functools import wraps
 
-def custom_login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        user_id = request.cookies.get('user_id')
-        if not user_id:
-            return jsonify({'success': False, 'error': 'Not authenticated'}), 401
-        user = User.query.get(int(user_id))
-        if not user:
-            return jsonify({'success': False, 'error': 'Invalid session'}), 401
-        login_user(user)
-        return f(*args, **kwargs)
-    return decorated_function
+
 
 
 @app.route('/api/auth/login', methods=['POST'])
@@ -113,34 +105,36 @@ def login():
         data = request.get_json()
         email = data.get('email')
         password = data.get('password')
+
         if not email or not password:
             return jsonify({'success': False, 'error': 'Missing credentials'}), 400
+
         user = User.query.filter_by(email=email).first()
+
         if not user or not user.check_password(password):
             return jsonify({'success': False, 'error': 'Invalid email or password'}), 401
-        login_user(user)
-        response = jsonify({'success': True, 'message': 'Login successful', 'user': user.to_dict()})
-        response.set_cookie(
-    'user_id',
-    str(user.id),
-    httponly=True,
-    secure=True,
-    samesite='None'
-)
-        return response
+
+        login_user(user, remember=True)  
+
+        return jsonify({
+            'success': True,
+            'message': 'Login successful',
+            'user': user.to_dict()
+        })
+
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/auth/logout', methods=['POST'])
-@custom_login_required
+@login_required
 def logout():
     logout_user()
     return jsonify({'success': True, 'message': 'Logged out successfully'})
 
 
 @app.route('/api/auth/me', methods=['GET'])
-@custom_login_required
+@login_required
 def get_current_user():
     return jsonify({'success': True, 'user': current_user.to_dict()})
 
@@ -167,7 +161,7 @@ def signup():
 
 
 @app.route('/api/change-password', methods=['POST'])
-@custom_login_required
+@login_required
 def change_password():
     data = request.get_json()
     current_password = data.get("currentPassword")
@@ -284,7 +278,7 @@ def keyword_override(description):
 # ══════════════════════════════════════════════════════════
 
 @app.route('/api/classify', methods=['POST'])
-@custom_login_required
+@login_required
 def classify_transaction():
     try:
         data = request.get_json()
@@ -359,7 +353,7 @@ def classify_transaction():
 # ══════════════════════════════════════════════════════════
 
 @app.route('/api/transactions', methods=['GET'])
-@custom_login_required
+@login_required
 def get_transactions():
     try:
         category = request.args.get('category')
@@ -385,7 +379,7 @@ def get_transactions():
 
 
 @app.route('/api/transactions/<int:transaction_id>', methods=['DELETE'])
-@custom_login_required
+@login_required
 def delete_transaction(transaction_id):
     try:
         transaction = Transaction.query.filter_by(
@@ -404,7 +398,7 @@ def delete_transaction(transaction_id):
 # ══════════════════════════════════════════════════════════
 
 @app.route('/api/stats', methods=['GET'])
-@custom_login_required
+@login_required
 def get_stats():
     try:
         month = request.args.get('month')
@@ -484,7 +478,7 @@ def get_category_metadata(category):
 # ══════════════════════════════════════════════════════════
 
 @app.route('/api/budgets', methods=['GET'])
-@custom_login_required
+@login_required
 def get_budgets():
     try:
         user_budgets = Budget.query.filter_by(user_id=current_user.id).all()
@@ -506,7 +500,7 @@ def get_budgets():
 
 
 @app.route('/api/budgets', methods=['POST'])
-@custom_login_required
+@login_required
 def save_budget():
     try:
         data = request.get_json()
@@ -527,7 +521,7 @@ def save_budget():
 
 
 @app.route('/api/budgets/<string:category>', methods=['DELETE'])
-@custom_login_required
+@login_required
 def delete_budget(category):
     try:
         budget = Budget.query.filter_by(user_id=current_user.id, category=category).first()
