@@ -53,6 +53,26 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+
+@login_manager.unauthorized_handler
+def unauthorized_api_response():
+    if request.path.startswith('/api/'):
+        return jsonify({
+            'success': False,
+            'error': 'Authentication required'
+        }), 401
+
+    return jsonify({
+        'success': False,
+        'error': 'Authentication required'
+    }), 401
+
+
+@app.before_request
+def handle_api_preflight():
+    if request.method == 'OPTIONS' and request.path.startswith('/api/'):
+        return app.make_default_options_response()
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
