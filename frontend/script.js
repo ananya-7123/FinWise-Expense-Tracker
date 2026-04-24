@@ -12,7 +12,7 @@ async function changePassword() {
   }
 
   try {
-    await fetch(`${API_BASE_URL}/api/change-password`, {
+    const response = await fetch(`${API_BASE_URL}/api/change-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
