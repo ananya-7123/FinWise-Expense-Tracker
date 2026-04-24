@@ -20,15 +20,15 @@ def preprocess(text):
 # ══════════════════════════════════════════════════════════
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True, origins=["*"])
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finwise.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-app.config['SESSION_COOKIE_SECURE'] = False
+app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = False
 
-CORS(app, supports_credentials=True)
 
 db.init_app(app)
 login_manager = LoginManager()

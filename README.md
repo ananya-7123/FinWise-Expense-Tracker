@@ -195,7 +195,8 @@ http://localhost:8000/login.html
 
 - Navigate to `http://localhost:8000/signup.html`
 - Fill in username, email, and password
-- Click "Create Account"
+- Click "Create Account" DEMO : email id : ananya@kiit.ac.in  || pw: anaXYZ@_07
+
 
 ### 2. Login
 

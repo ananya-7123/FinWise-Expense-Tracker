@@ -291,3 +291,5 @@ print(f"\n📊 Category distribution:")
 print(df['category'].value_counts().to_string())
 print(f"\n💾 Saved as: dataset.csv")
 print(f"\nNow run: python train_model.py")
+
+ī
