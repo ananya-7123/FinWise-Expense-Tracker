@@ -1,384 +1,443 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FinWise — Smart Finance Tracker</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <!-- ===== SIDEBAR ===== -->
-    <aside class="sidebar">
-      <div class="logo">
-        <div class="logo-icon">💹</div>
-        <div class="logo-text">Fin<span>Wise</span></div>
-      </div>
 
-      <div class="nav-section">
-        <div class="nav-label">Overview</div>
-        <a class="nav-item active" href="#" aria-label="Dashboard">
-          <span class="nav-icon">🏠</span> Dashboard
-        </a>
-        <a class="nav-item" href="#" aria-label="Classifier">
-          <span class="nav-icon">⚡</span> Classifier
-        </a>
-        <a class="nav-item" href="history.html" aria-label="Transactions">
-          <span class="nav-icon">🧾</span> Transactions
-        </a>
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinWise — Smart Finance Tracker</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script>
+    tailwind.config = {
+      corePlugins: {
+        preflight: false,
+      }
+    }
+  </script>
+</head>
 
-      <div class="nav-section">
-        <div class="nav-label">Finance</div>
-        <a class="nav-item" href="budgets.html" aria-label="Budgets">
-          <span class="nav-icon">🎯</span> Budgets
-        </a>
-        <a class="nav-item" href="#" aria-label="Accounts">
-          <span class="nav-icon">💰</span> Accounts
-        </a>
-        <a class="nav-item" href="#" aria-label="History">
-          <span class="nav-icon">📁</span> History
-        </a>
-      </div>
+<body>
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon"><i data-feather="trending-up" style="width: 20px; height: 20px;"></i></div>
+      <div class="logo-text">Fin<span>Wise</span></div>
+    </div>
 
-      <div class="nav-section">
-        <div class="nav-label">Settings</div>
-        <a class="nav-item" href="preferences.html" aria-label="Preferences">
-          <span class="nav-icon">⚙️</span> Preferences
-        </a>
-      </div>
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <a class="nav-item active" href="#" aria-label="Dashboard">
+        <span class="nav-icon"><i data-feather="home" style="width: 18px; height: 18px;"></i></span> Dashboard
+      </a>
+      <a class="nav-item" href="history.html" aria-label="Transactions">
+        <span class="nav-icon"><i data-feather="list" style="width: 18px; height: 18px;"></i></span> Transactions
+      </a>
+    </div>
 
-      <div class="sidebar-footer">
-        <div class="ai-badge">AI Engine Active</div>
-        <div class="ai-text">
-          NLP Classifier — Logistic Regression · 93.4% Accuracy
-        </div>
-      </div>
-    </aside>
+    <div class="nav-section">
+      <div class="nav-label">Finance</div>
+      <a class="nav-item" href="budgets.html" aria-label="Budgets">
+        <span class="nav-icon"><i data-feather="target" style="width: 18px; height: 18px;"></i></span> Budgets
+      </a>
+      <a class="nav-item" href="#" aria-label="Monthly Wrapped" onclick="generateWrapped()">
+        <span class="nav-icon"><i data-feather="award" style="width: 18px; height: 18px;"></i></span> Monthly Wrapped
+      </a>
+    </div>
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <main class="main">
-      <!-- TOPBAR -->
-      <div class="topbar">
-        <div>
-          <div class="page-title">Dashboard</div>
-          <div class="page-sub">Welcome back, 👋</div>
-        </div>
-        <div class="topbar-right">
-          <button class="add-btn" onclick="scrollToClassify()">
-            + Add Expense
-          </button>
-          <div
-            class="avatar"
-            onclick="showLogoutMenu()"
-            style="cursor: pointer"
-            id="userAvatar"
-          >
-            U
+    <div class="nav-section">
+      <div class="nav-label">Settings</div>
+      <a class="nav-item" href="preferences.html" aria-label="Preferences">
+        <span class="nav-icon"><i data-feather="settings" style="width: 18px; height: 18px;"></i></span> Preferences
+      </a>
+      <a class="nav-item" href="#" aria-label="Logout" onclick="handleLogout()">
+        <span class="nav-icon"><i data-feather="log-out" style="width: 18px; height: 18px;"></i></span> Logout
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <!-- Theme Toggle -->
+      <div class="theme-switch-wrapper"
+        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 4px;">
+        <span style="font-size: 13px; color: var(--text-muted); font-weight: 500;">Dark Mode</span>
+        <label class="theme-switch" for="checkbox"
+          style="position: relative; display: inline-block; width: 44px; height: 24px;">
+          <input type="checkbox" id="checkbox" style="opacity: 0; width: 0; height: 0;" onchange="toggleTheme(this)">
+          <div class="slider round"
+            style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); border: 1px solid var(--border); border-radius: 24px; transition: .4s;">
+            <span class="slider-circle"
+              style="position: absolute; content: ''; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: var(--teal); border-radius: 50%; transition: .4s; box-shadow: 0 0 10px var(--teal-glow);"></span>
           </div>
-          <div class="logout-menu" id="logoutMenu" style="display: none">
-            <div class="logout-user" id="logoutUsername">User</div>
-            <button class="logout-btn" onclick="handleLogout()">
-              🚪 Logout
-            </button>
-          </div>
-        </div>
+        </label>
       </div>
 
-      <!-- ALERT BANNER -->
-      <div class="alert-banner" id="alertBanner" role="alert">
-        <span class="alert-icon">⚠️</span>
-        <div class="alert-text">
-          <strong>Savings Tip:</strong> Start tracking your expenses to receive
-          AI-powered insights.
-        </div>
-        <button
-          class="alert-close"
-          onclick="closeAlert()"
-          aria-label="Close alert"
-        >
-          ✕
+      <div class="ai-badge">AI Engine Active</div>
+      <div class="ai-text">
+        NLP Classifier — Logistic Regression · 93.4% Accuracy
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Welcome back, User</div>
+      </div>
+      <div class="topbar-right">
+        <button class="add-btn flex items-center gap-2" onclick="startVoiceLog()">
+          <i data-feather="mic" style="width: 16px; height: 16px;"></i> Voice Log
+        </button>
+        <button class="add-btn flex items-center gap-2" onclick="document.getElementById('receiptUpload').click()">
+          <i data-feather="camera" style="width: 16px; height: 16px;"></i> Scan Receipt
+        </button>
+        <input type="file" id="receiptUpload" accept="image/*" style="display: none"
+          onchange="handleReceiptUpload(event)" />
+        <button class="add-btn highlight flex items-center gap-2" onclick="scrollToClassify()">
+          <i data-feather="plus" style="width: 16px; height: 16px;"></i> Add Expense
         </button>
       </div>
+    </div>
 
-      <!-- STAT CARDS -->
-      <div class="stat-grid">
-        <div class="stat-card teal">
-          <div class="stat-label">💳 Total Spending</div>
-          <div class="stat-value" id="totalSpending">₹0</div>
-          <div class="stat-change"></div>
+    <!-- ALERT BANNER -->
+    <div class="alert-banner" id="alertBanner" role="alert">
+      <span class="alert-icon">!</span>
+      <div class="alert-text">
+        <strong>Savings Tip:</strong> Start tracking your expenses to receive
+        AI-powered insights.
+      </div>
+      <button class="alert-close" onclick="closeAlert()" aria-label="Close alert">
+        ✕
+      </button>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stat-grid">
+      <div class="stat-card teal">
+        <div class="stat-label flex items-center gap-1"><i data-feather="credit-card"
+            style="width: 14px; height: 14px;"></i> Total Spending</div>
+        <div class="stat-value" id="totalSpending">₹0</div>
+        <div class="stat-change"></div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-label flex items-center gap-1"><i data-feather="star" style="width: 14px; height: 14px;"></i>
+          Top Category</div>
+        <div class="stat-value" id="topCategory">—</div>
+        <div class="stat-change"></div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-label flex items-center gap-1"><i data-feather="hash" style="width: 14px; height: 14px;"></i>
+          Transactions</div>
+        <div class="stat-value" id="totalTransactions">0</div>
+        <div class="stat-change"></div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-label flex items-center gap-1"><i data-feather="trending-up"
+            style="width: 14px; height: 14px;"></i> Savings Rate</div>
+        <div class="stat-value" id="savingsRate">0%</div>
+        <div class="stat-change">Start saving to see insights</div>
+      </div>
+    </div>
+
+    <!-- Spending by Category - Full Width -->
+    <div class="card" style="margin-bottom: 26px">
+      <div class="card-header">
+        <div class="card-title flex items-center gap-2"><i data-feather="pie-chart"
+            style="width: 18px; height: 18px;"></i> Spending by Category</div>
+        <div class="card-badge" id="statsMonth">Current Month</div>
+      </div>
+      <div class="category-list" id="categoryBreakdown">
+        <div class="empty-state">No spending data yet</div>
+      </div>
+    </div>
+
+    <!-- AI CLASSIFIER (full width) -->
+    <div class="card classify-panel" id="classifySection" style="margin-bottom: 26px">
+      <div class="card-header">
+        <div>
+          <div class="card-title flex items-center gap-2"><i data-feather="cpu" style="width: 18px; height: 18px;"></i>
+            AI Expense Classifier</div>
+          <div class="card-sub">
+            Type a transaction — AI will classify it instantly
+          </div>
         </div>
-        <div class="stat-card amber">
-          <div class="stat-label">🍔 Top Category</div>
-          <div class="stat-value" id="topCategory">—</div>
-          <div class="stat-change"></div>
+        <div class="accuracy-badge">93.4% Accuracy</div>
+      </div>
+      <div class="classify-grid">
+        <div class="field-group">
+          <label class="field-label" for="txDesc">Transaction Description</label>
+          <input id="txDesc" class="field-input" type="text"
+            placeholder='e.g. "Zomato Order", "Uber Ride", "Apollo Pharmacy"' />
         </div>
-        <div class="stat-card blue">
-          <div class="stat-label">🔢 Transactions</div>
-          <div class="stat-value" id="totalTransactions">0</div>
-          <div class="stat-change"></div>
+        <div class="field-group">
+          <label class="field-label" for="txAmount">Amount (₹)</label>
+          <input id="txAmount" class="field-input" type="number" placeholder="0.00" />
         </div>
-        <div class="stat-card red">
-          <div class="stat-label">💸 Savings Rate</div>
-          <div class="stat-value" id="savingsRate">0%</div>
-          <div class="stat-change">Start saving to see insights</div>
+        <div class="field-group">
+          <label class="field-label">&nbsp;</label>
+          <button class="classify-action-btn" onclick="classifyExpense()">
+            Classify
+          </button>
         </div>
       </div>
+      <div class="classify-result" id="classifyResult">
+        <div class="result-icon" id="resultIcon">F</div>
+        <div class="result-text">
+          <div class="result-category" id="resultCategory"></div>
+          <div class="result-desc" id="resultDesc"></div>
+          <div class="result-tip" id="resultTip"></div>
+        </div>
+        <div class="conf-badge" id="confBadge"></div>
+      </div>
+    </div>
 
-      <!-- Spending by Category - Full Width -->
-      <div class="card" style="margin-bottom: 26px">
+    <!-- ROW 2: Spending Breakdown Pie + Spending Trend -->
+    <div class="section-grid" style="margin-bottom: 26px">
+      <!-- Category Pie Chart -->
+      <div class="card">
         <div class="card-header">
-          <div class="card-title">📊 Spending by Category</div>
-          <div class="card-badge" id="statsMonth">Current Month</div>
+          <div class="card-title flex items-center gap-2"><i data-feather="pie-chart"
+              style="width: 18px; height: 18px;"></i> Spending Breakdown</div>
+          <div class="card-badge" id="chartMonth">This Month</div>
         </div>
-        <div class="category-list" id="categoryBreakdown">
-          <div class="empty-state">No spending data yet</div>
+        <div style="position: relative; height: 300px; overflow: visible">
+          <canvas id="categoryPieChart"></canvas>
+          <div class="empty-state" id="pieChartEmpty"></div>
         </div>
       </div>
 
-      <!-- AI CLASSIFIER (full width) -->
-      <div
-        class="card classify-panel"
-        id="classifySection"
-        style="margin-bottom: 26px"
-      >
+      <!-- Spending Trend Line Chart -->
+      <div class="card">
         <div class="card-header">
-          <div>
-            <div class="card-title">🤖 AI Expense Classifier</div>
-            <div class="card-sub">
-              Type a transaction — AI will classify it instantly
-            </div>
-          </div>
-          <div class="accuracy-badge">93.4% Accuracy</div>
-        </div>
-        <div class="classify-grid">
-          <div class="field-group">
-            <label class="field-label" for="txDesc"
-              >Transaction Description</label
-            >
-            <input
-              id="txDesc"
-              class="field-input"
-              type="text"
-              placeholder='e.g. "Zomato Order", "Uber Ride", "Apollo Pharmacy"'
-            />
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="txAmount">Amount (₹)</label>
-            <input
-              id="txAmount"
-              class="field-input"
-              type="number"
-              placeholder="0.00"
-            />
-          </div>
-          <div class="field-group">
-            <label class="field-label">&nbsp;</label>
-            <button class="classify-action-btn" onclick="classifyExpense()">
-              ⚡ Classify
-            </button>
-          </div>
-        </div>
-        <div class="classify-result" id="classifyResult">
-          <div class="result-icon" id="resultIcon">🍔</div>
-          <div class="result-text">
-            <div class="result-category" id="resultCategory"></div>
-            <div class="result-desc" id="resultDesc"></div>
-            <div class="result-tip" id="resultTip"></div>
-          </div>
-          <div class="conf-badge" id="confBadge"></div>
-        </div>
-      </div>
-
-      <!-- ROW 2: Spending Breakdown Pie + Spending Trend -->
-      <div class="section-grid" style="margin-bottom: 26px">
-        <!-- Category Pie Chart -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">🥧 Spending Breakdown</div>
-            <div class="card-badge" id="chartMonth">This Month</div>
-          </div>
-          <div style="position: relative; height: 300px; overflow: visible">
-            <canvas id="categoryPieChart"></canvas>
-            <div class="empty-state" id="pieChartEmpty"></div>
-          </div>
-        </div>
-
-        <!-- Spending Trend Line Chart -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">📈 Spending Trend</div>
-            <div class="card-badge">Last 7 Days</div>
-          </div>
-          <div style="position: relative; height: 300px">
-            <canvas id="trendLineChart"></canvas>
-            <div class="empty-state" id="trendChartEmpty"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Monthly Comparison Bar Chart (full width) -->
-      <div class="card" style="margin-bottom: 26px">
-        <div class="card-header">
-          <div class="card-title">📊 Monthly Comparison</div>
-          <div class="card-badge">Last 6 Months</div>
+          <div class="card-title flex items-center gap-2"><i data-feather="trending-up"
+              style="width: 18px; height: 18px;"></i> Spending Trend</div>
+          <div class="card-badge">Last 7 Days</div>
         </div>
         <div style="position: relative; height: 300px">
-          <canvas id="monthlyBarChart"></canvas>
-          <div class="empty-state" id="monthlyChartEmpty"></div>
+          <canvas id="trendLineChart"></canvas>
+          <div class="empty-state" id="trendChartEmpty"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Comparison Bar Chart (full width) -->
+    <div class="card" style="margin-bottom: 26px">
+      <div class="card-header">
+        <div class="card-title flex items-center gap-2"><i data-feather="bar-chart-2"
+            style="width: 18px; height: 18px;"></i> Monthly Comparison</div>
+        <div class="card-badge">Last 6 Months</div>
+      </div>
+      <div style="position: relative; height: 300px">
+        <canvas id="monthlyBarChart"></canvas>
+        <div class="empty-state" id="monthlyChartEmpty"></div>
+      </div>
+    </div>
+
+    <!-- MONTHLY REPORTS SECTION -->
+    <div class="card" style="margin-bottom: 26px">
+      <div class="card-header">
+        <div>
+          <div class="card-title flex items-center gap-2"><i data-feather="file-text"
+              style="width: 18px; height: 18px;"></i> Monthly Reports</div>
+          <div class="card-sub">Generate professional expense reports</div>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center">
+          <select class="month-selector" id="reportMonthSelector"></select>
+          <button class="add-btn" onclick="generatePDFReport()">
+            📥 Download PDF
+          </button>
         </div>
       </div>
 
-      <!-- MONTHLY REPORTS SECTION -->
-      <div class="card" style="margin-bottom: 26px">
-        <div class="card-header">
-          <div>
-            <div class="card-title">📄 Monthly Reports</div>
-            <div class="card-sub">Generate professional expense reports</div>
-          </div>
-          <div style="display: flex; gap: 12px; align-items: center">
-            <select class="month-selector" id="reportMonthSelector"></select>
-            <button class="add-btn" onclick="generatePDFReport()">
-              📥 Download PDF
-            </button>
-          </div>
-        </div>
-
-        <div class="report-preview" id="reportPreview" style="display: none">
-          <div class="report-section">
-            <h3
-              style="
+      <div class="report-preview" id="reportPreview" style="display: none">
+        <div class="report-section">
+          <h3 style="
                 color: var(--teal);
                 font-family: &quot;Syne&quot;, sans-serif;
                 font-size: 16px;
                 margin-bottom: 16px;
-              "
-            >
-              📊 Summary
-            </h3>
-            <div class="stats-row" style="margin-bottom: 0">
-              <div class="stat-box">
-                <div class="stat-box-label">Total Spending</div>
-                <div
-                  class="stat-box-value"
-                  id="reportTotalSpending"
-                  style="font-size: 20px"
-                >
-                  ₹0
-                </div>
+              ">
+            <div class="flex items-center gap-2"><i data-feather="pie-chart" style="width: 16px; height: 16px;"></i>
+              Summary</div>
+          </h3>
+          <div class="stats-row" style="margin-bottom: 0">
+            <div class="stat-box">
+              <div class="stat-box-label">Total Spending</div>
+              <div class="stat-box-value" id="reportTotalSpending" style="font-size: 20px">
+                ₹0
               </div>
-              <div class="stat-box">
-                <div class="stat-box-label">Transactions</div>
-                <div
-                  class="stat-box-value"
-                  id="reportTxCount"
-                  style="font-size: 20px"
-                >
-                  0
-                </div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-box-label">Transactions</div>
+              <div class="stat-box-value" id="reportTxCount" style="font-size: 20px">
+                0
               </div>
-              <div class="stat-box">
-                <div class="stat-box-label">Top Category</div>
-                <div
-                  class="stat-box-value"
-                  id="reportTopCategory"
-                  style="font-size: 20px"
-                >
-                  _
-                </div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-box-label">Top Category</div>
+              <div class="stat-box-value" id="reportTopCategory" style="font-size: 20px">
+                _
               </div>
             </div>
           </div>
+        </div>
 
-          <div class="report-section" style="margin-top: 24px">
-            <h3
-              style="
+        <div class="report-section" style="margin-top: 24px">
+          <h3 style="
                 color: var(--teal);
                 font-family: &quot;Syne&quot;, sans-serif;
                 font-size: 16px;
                 margin-bottom: 12px;
-              "
-            >
-              💡 AI Insights
-            </h3>
-            <div
-              id="reportInsights"
-              style="font-size: 13px; color: var(--text-dim); line-height: 1.8"
-            >
-              No insights yet. Start adding transactions to see AI insights.
-            </div>
+              ">
+            <div class="flex items-center gap-2"><i data-feather="zap" style="width: 16px; height: 16px;"></i> AI
+              Insights</div>
+          </h3>
+          <div id="reportInsights" style="font-size: 13px; color: var(--text-dim); line-height: 1.8">
+            No insights yet. Start adding transactions to see AI insights.
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- TRANSACTIONS + TIPS -->
-      <div class="section-grid">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">🧾 Recent Transactions</div>
-            <a href="history.html" class="view-all">View all →</a>
-          </div>
-          <div class="tx-list" id="txList">
-            <div class="empty-state">Transactions shown</div>
-          </div>
+    <!-- TRANSACTIONS + TIPS -->
+    <div class="section-grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title flex items-center gap-2"><i data-feather="list" style="width: 18px; height: 18px;"></i>
+            Recent Transactions</div>
+          <a href="history.html" class="view-all">View all →</a>
         </div>
+        <div class="tx-list" id="txList">
+          <div class="empty-state">Transactions shown</div>
+        </div>
+      </div>
 
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">💡 Smart Savings Tips</div>
-            <div class="card-sub-inline">AI-generated</div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title flex items-center gap-2"><i data-feather="zap" style="width: 18px; height: 18px;"></i>
+            Smart Savings Tips</div>
+          <div class="card-sub-inline">AI-generated</div>
+        </div>
+        <div class="tips-list">
+          <div class="tip-card">
+            <div class="tip-icon"><i data-feather="coffee"></i></div>
+            <div>
+              <div class="tip-title">Meal prep this week</div>
+              <div class="tip-body">
+                Start tracking expenses to receive personalized AI insights.
+              </div>
+            </div>
           </div>
-          <div class="tips-list">
-            <div class="tip-card">
-              <div class="tip-icon">🍱</div>
-              <div>
-                <div class="tip-title">Meal prep this week</div>
-                <div class="tip-body">
-                  Start tracking expenses to receive personalized AI insights.
-                </div>
+          <div class="tip-card">
+            <div class="tip-icon"><i data-feather="truck"></i></div>
+            <div>
+              <div class="tip-title">Try a commuter pass</div>
+              <div class="tip-body">
+                Public transport or carpooling can significantly reduce travel
+                expenses.
               </div>
             </div>
-            <div class="tip-card">
-              <div class="tip-icon">🚍</div>
-              <div>
-                <div class="tip-title">Try a commuter pass</div>
-                <div class="tip-body">
-                  Public transport or carpooling can significantly reduce travel
-                  expenses.
-                </div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-icon"><i data-feather="target"></i></div>
+            <div>
+              <div class="tip-title">Set a no-spend day</div>
+              <div class="tip-body">
+                Try setting one day each week where you avoid unnecessary
+                spending.
               </div>
             </div>
-            <div class="tip-card">
-              <div class="tip-icon">🎯</div>
-              <div>
-                <div class="tip-title">Set a no-spend day</div>
-                <div class="tip-body">
-                  Try setting one day each week where you avoid unnecessary
-                  spending.
-                </div>
-              </div>
-            </div>
-            <div class="tip-card">
-              <div class="tip-icon">📱</div>
-              <div>
-                <div class="tip-title">Review subscriptions</div>
-                <div class="tip-body">
-                  Check for unused OTT or app subscriptions — they silently
-                  drain ₹200-500/month.
-                </div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-icon"><i data-feather="smartphone"></i></div>
+            <div>
+              <div class="tip-title">Review subscriptions</div>
+              <div class="tip-body">
+                Check for unused OTT or app subscriptions — they silently
+                drain ₹200-500/month.
               </div>
             </div>
           </div>
         </div>
       </div>
-    </main>
+    </div>
+  </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <script src="script.js"></script>
-  </body>
+  <!-- AI COPILOT CHAT WIDGET -->
+  <div class="fixed bottom-6 right-6 z-[9999] flex flex-col items-end">
+    <!-- Chat Window -->
+    <div id="copilotWindow"
+      class="hidden w-[350px] bg-[#1e293b] rounded-2xl shadow-2xl border border-gray-700 overflow-hidden mb-4 flex-col transition-all duration-300"
+      style="height: 500px; max-height: 80vh;">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-teal-500 to-emerald-500 p-4 flex justify-between items-center text-white">
+        <div class="font-bold flex items-center gap-2" style="font-family: 'Manrope', sans-serif;">
+          <i data-feather="cpu" style="width: 18px; height: 18px;"></i> FinWise Copilot
+        </div>
+        <button onclick="toggleCopilot()" class="text-white hover:text-gray-200">
+          <i data-feather="x" style="width: 18px; height: 18px;"></i>
+        </button>
+      </div>
+
+      <!-- Messages -->
+      <div id="copilotMessages"
+        class="flex-1 p-4 overflow-y-auto flex flex-col gap-3 bg-[#0f172a] text-sm text-gray-200"
+        style="font-family: 'Inter', sans-serif;">
+        <div class="bg-gray-800 self-start p-3 rounded-2xl rounded-tl-none max-w-[85%] border border-gray-700">
+          Hi! I'm your AI Financial Copilot. Ask me anything about your spending, trends, or savings tips!
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="p-3 bg-[#1e293b] border-t border-gray-700 flex gap-2">
+        <input type="text" id="copilotInput" placeholder="Ask about your finances..."
+          class="flex-1 bg-[#0f172a] text-white rounded-full px-4 py-2 border border-gray-600 focus:outline-none focus:border-teal-500"
+          style="font-family: 'Inter', sans-serif;" onkeypress="if(event.key === 'Enter') sendCopilotMessage()">
+        <button onclick="sendCopilotMessage()"
+          class="bg-teal-500 hover:bg-teal-600 text-white rounded-full p-2 w-10 h-10 flex items-center justify-center transition-colors">
+          <i data-feather="send" style="width: 16px; height: 16px;"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Toggle Button -->
+    <button onclick="toggleCopilot()"
+      class="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-[0_0_15px_rgba(20,184,166,0.5)] transition-all duration-300 transform hover:scale-105">
+      <i data-feather="message-square" style="width: 24px; height: 24px;"></i>
+    </button>
+  </div>
+
+  <!-- MONTHLY WRAPPED MODAL -->
+  <div id="wrappedModal"
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[10000] hidden flex items-center justify-center p-4">
+    <div
+      class="bg-[#1e293b] rounded-2xl shadow-2xl border border-teal-500/50 w-full max-w-2xl overflow-hidden relative">
+      <div
+        class="bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-500 p-6 flex justify-between items-center text-white">
+        <div class="font-bold text-2xl flex items-center gap-2" style="font-family: 'Manrope', sans-serif;">
+          <i data-feather="award" style="width: 24px; height: 24px;"></i> Your Monthly Wrapped
+        </div>
+        <button onclick="document.getElementById('wrappedModal').classList.add('hidden')"
+          class="text-white hover:text-gray-200 text-xl font-bold">
+          <i data-feather="x" style="width: 24px; height: 24px;"></i>
+        </button>
+      </div>
+      <div id="wrappedContent" class="p-8 text-gray-200 text-lg leading-relaxed"
+        style="font-family: 'Inter', sans-serif;">
+        <!-- Content injected here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="script.js"></script>
+</body>
+
 </html>

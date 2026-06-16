@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://finwise-expense-tracker.onrender.com";
+const API_BASE_URL = "http://localhost:5000"; // Changed for local testing. Change back to "https://finwise-expense-tracker.onrender.com" before pushing!
 
 async function changePassword() {
   const currentPassword = document.getElementById("currentPassword").value;
@@ -185,11 +185,13 @@ function renderTransactions() {
       deleteBtn +
       "</div>";
   }
+  
+  if (window.feather) feather.replace();
 }
 
 var classifierData = {
   food: {
-    icon: "🍔",
+    icon: "<i data-feather='coffee'></i>",
     tip: "Food is your #1 expense. Try meal-prepping to save up to 40%.",
     keywords: [
       "zomato",
@@ -214,7 +216,7 @@ var classifierData = {
     ],
   },
   travel: {
-    icon: "🚗",
+    icon: "<i data-feather='navigation'></i>",
     tip: "Transit is your 2nd biggest spend. A monthly pass saves ₹120.",
     keywords: [
       "uber",
@@ -235,7 +237,7 @@ var classifierData = {
     ],
   },
   bills: {
-    icon: "⚡",
+    icon: "<i data-feather='zap'></i>",
     tip: "Bills are on track. Check for unused subscriptions.",
     keywords: [
       "electricity",
@@ -255,7 +257,7 @@ var classifierData = {
     ],
   },
   medicine: {
-    icon: "💊",
+    icon: "<i data-feather='heart'></i>",
     tip: "Generic medicines cost 50-80% less than branded ones.",
     keywords: [
       "pharmacy",
@@ -273,7 +275,7 @@ var classifierData = {
     ],
   },
   shopping: {
-    icon: "🛍️",
+    icon: "<i data-feather='shopping-bag'></i>",
     tip: "Discretionary spending is high. Try a no-spend weekend.",
     keywords: [
       "amazon",
@@ -291,7 +293,7 @@ var classifierData = {
     ],
   },
   entertainment: {
-    icon: "🎬",
+    icon: "<i data-feather='film'></i>",
     tip: "Entertainment looks low this month — good control!",
     keywords: [
       "netflix",
@@ -409,7 +411,7 @@ async function classifyExpense() {
     );
   } finally {
     classifyBtn.disabled = false;
-    classifyBtn.innerHTML = "⚡ Classify";
+    classifyBtn.innerHTML = "B Classify";
   }
 }
 
@@ -536,7 +538,7 @@ async function loadTransactionsFromDB() {
             id: tx.id,
             name: tx.description,
             cat: tx.category,
-            icon: tx.icon || "📝",
+            icon: tx.icon || "<i data-feather='file'></i>",
             bg: bgColors[tx.category] || "rgba(255,255,255,0.1)",
             amount: "-₹" + tx.amount,
             date: dateStr,
@@ -1166,6 +1168,7 @@ function displayReportPreview(stats, transactions) {
   document.getElementById("reportInsights").innerHTML = insights
     .map((insight) => `<div style="margin-bottom: 8px;">• ${insight}</div>`)
     .join("");
+  if (window.feather) feather.replace();
 }
 
 function generateInsights(stats, transactions) {
@@ -1439,32 +1442,32 @@ async function loadSmartTips() {
     // ── 1. TOP SPENDING CATEGORY TIPS ──
     const categoryTips = {
       Food: {
-        icon: "🍱",
+        icon: "<i data-feather='coffee'></i>",
         title: "Meal prep this week",
         body: "Food is your #1 expense. Home cooking can cut costs by up to 40%.",
       },
       Transport: {
-        icon: "🚍",
+        icon: "<i data-feather='navigation'></i>",
         title: "Try a commuter pass",
         body: "Transit is a big spend. A monthly pass can save you ₹100-200.",
       },
       Healthcare: {
-        icon: "💊",
+        icon: "<i data-feather='heart'></i>",
         title: "Use generic medicines",
         body: "Generic medicines cost 50-80% less than branded alternatives.",
       },
       Bills: {
-        icon: "📡",
+        icon: "<i data-feather='zap'></i>",
         title: "Audit your subscriptions",
         body: "Check for unused OTT or app subscriptions silently draining money.",
       },
       Shopping: {
-        icon: "🛍️",
+        icon: "<i data-feather='shopping-bag'></i>",
         title: "Try a no-spend weekend",
         body: "Discretionary spending is high. One no-spend weekend saves ₹300+.",
       },
       Entertainment: {
-        icon: "🎬",
+        icon: "<i data-feather='film'></i>",
         title: "Set an entertainment cap",
         body: "Try capping entertainment at ₹500/month to free up savings.",
       },
@@ -1483,7 +1486,7 @@ async function loadSmartTips() {
       // If top category is over 35% of spending
       if (top.percentage > 35) {
         tips.push({
-          icon: "⚠️",
+          icon: "<i data-feather='alert-circle'></i>",
           title: `${top.category} is ${top.percentage}% of budget`,
           body: `Try reducing ${top.category} spending by just 20% to save ₹${(top.total * 0.2).toFixed(0)} this month.`,
         });
@@ -1496,13 +1499,13 @@ async function loadSmartTips() {
         const pct = (b.spent / b.limit) * 100;
         if (pct >= 100) {
           tips.push({
-            icon: "🚨",
+            icon: "<i data-feather='alert-circle'></i>",
             title: `${b.category} over budget!`,
             body: `You've exceeded your ₹${b.limit} limit by ₹${(b.spent - b.limit).toFixed(0)}. Pause ${b.category} spending for now.`,
           });
         } else if (pct >= 80) {
           tips.push({
-            icon: "🔔",
+            icon: "<i data-feather='alert-circle'></i>",
             title: `${b.category} almost at limit`,
             body: `Only ₹${(b.limit - b.spent).toFixed(0)} left in your ${b.category} budget. Spend carefully!`,
           });
@@ -1533,13 +1536,13 @@ async function loadSmartTips() {
 
       if (last7 > first7 * 1.5 && last7 > 0) {
         tips.push({
-          icon: "📈",
+          icon: "<i data-feather='trending-up'></i>",
           title: "Spending is accelerating",
           body: `You've spent ₹${last7.toFixed(0)} in the last 7 days vs ₹${first7.toFixed(0)} in the first 7. Slow down!`,
         });
       } else if (monthTxs.length > 0 && last7 < first7 * 0.5) {
         tips.push({
-          icon: "✅",
+          icon: "<i data-feather='check-circle'></i>",
           title: "Great spending control!",
           body: `Your spending has slowed down this week. Keep it up to finish the month strong.`,
         });
@@ -1548,7 +1551,7 @@ async function loadSmartTips() {
       // High transaction frequency tip
       if (monthTxs.length > 20) {
         tips.push({
-          icon: "🔁",
+          icon: "<i data-feather='repeat'></i>",
           title: "Too many small transactions",
           body: `You've made ${monthTxs.length} transactions this month. Try batching purchases to stay in control.`,
         });
@@ -1558,32 +1561,32 @@ async function loadSmartTips() {
     // ── 4. GENERIC ROTATING TIPS (always show if < 4 tips) ──
     const genericTips = [
       {
-        icon: "🎯",
+        icon: "<i data-feather='navigation'></i>",
         title: "Set a no-spend day",
         body: "Try one day a week with zero spending. It adds up to big savings monthly.",
       },
       {
-        icon: "💰",
+        icon: "<i data-feather='dollar-sign'></i>",
         title: "Pay yourself first",
         body: "Transfer savings the moment you receive income, before spending anything.",
       },
       {
-        icon: "📱",
+        icon: "M",
         title: "Review subscriptions",
         body: "Check for unused OTT or app subscriptions — they silently drain ₹200-500/month.",
       },
       {
-        icon: "🏦",
+        icon: "<i data-feather='zap'></i>",
         title: "Build an emergency fund",
         body: "Aim for 3 months of expenses saved. Start with just ₹500/month.",
       },
       {
-        icon: "📊",
+        icon: "C",
         title: "Track daily spending",
         body: "People who track daily spend 20% less on average. Keep it up!",
       },
       {
-        icon: "🛒",
+        icon: "<i data-feather='shopping-bag'></i>",
         title: "Shop with a list",
         body: "Impulse purchases account for 40% of overspending. Always shop with a plan.",
       },
@@ -1615,7 +1618,363 @@ async function loadSmartTips() {
     `,
       )
       .join("");
+    if (window.feather) feather.replace();
   } catch (err) {
     console.error("Smart tips error:", err);
   }
+}
+
+// ══════════════════════════════════════════════════════════
+//                    AI COPILOT CHAT
+// ══════════════════════════════════════════════════════════
+
+function toggleCopilot() {
+  const windowEl = document.getElementById("copilotWindow");
+  if (windowEl.classList.contains("hidden")) {
+    windowEl.classList.remove("hidden");
+    windowEl.style.display = "flex";
+    setTimeout(() => {
+      document.getElementById("copilotInput").focus();
+    }, 100);
+  } else {
+    windowEl.classList.add("hidden");
+    windowEl.style.display = "none";
+  }
+}
+
+async function sendCopilotMessage() {
+  const inputEl = document.getElementById("copilotInput");
+  const message = inputEl.value.trim();
+  if (!message) return;
+
+  const messagesContainer = document.getElementById("copilotMessages");
+
+  // Add user message
+  messagesContainer.innerHTML += `
+    <div class="bg-teal-600 text-white self-end p-3 rounded-2xl rounded-tr-none max-w-[85%] border border-teal-500 shadow-md">
+      ${escapeHtml(message)}
+    </div>
+  `;
+  inputEl.value = "";
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+  // Add loading bubble
+  const loadingId = 'loading-' + Date.now();
+  messagesContainer.innerHTML += `
+    <div id="${loadingId}" class="bg-gray-800 self-start p-3 rounded-2xl rounded-tl-none max-w-[85%] border border-gray-700 flex items-center gap-2 text-gray-400">
+      <span class="animate-pulse">●</span><span class="animate-pulse" style="animation-delay: 0.2s">●</span><span class="animate-pulse" style="animation-delay: 0.4s">●</span>
+    </div>
+  `;
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/copilot/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ message: message }),
+    });
+
+    const data = await response.json();
+    document.getElementById(loadingId).remove();
+
+    if (data.success) {
+      // Add AI response
+      // Parse basic markdown to HTML (bold and newlines)
+      let formattedResponse = escapeHtml(data.response)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+
+      messagesContainer.innerHTML += `
+        <div class="bg-gray-800 self-start p-3 rounded-2xl rounded-tl-none max-w-[85%] border border-gray-700 shadow-md">
+          ${formattedResponse}
+        </div>
+      `;
+    } else {
+      messagesContainer.innerHTML += `
+        <div class="bg-red-900/50 text-red-200 self-start p-3 rounded-2xl rounded-tl-none max-w-[85%] border border-red-800">
+          Oops, something went wrong: ${escapeHtml(data.error || 'Unknown error')}
+        </div>
+      `;
+    }
+  } catch (err) {
+    document.getElementById(loadingId).remove();
+    messagesContainer.innerHTML += `
+      <div class="bg-red-900/50 text-red-200 self-start p-3 rounded-2xl rounded-tl-none max-w-[85%] border border-red-800">
+        Connection error. Is the backend running?
+      </div>
+    `;
+    console.error("Copilot Error:", err);
+  }
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function escapeHtml(unsafe) {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+}
+
+// ══════════════════════════════════════════════════════════
+//                    RECEIPT SCANNER
+// ══════════════════════════════════════════════════════════
+
+function scrollToClassify() {
+  const section = document.getElementById("classifySection");
+  if(section) section.scrollIntoView({ behavior: "smooth" });
+}
+
+async function handleReceiptUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function (e) {
+    const base64Image = e.target.result;
+    
+    // Show a loading alert
+    const alertBanner = document.getElementById("alertBanner");
+    if(alertBanner) {
+        alertBanner.className = "alert-banner show";
+        alertBanner.style.background = "var(--teal-dim)";
+        alertBanner.style.color = "var(--teal)";
+        alertBanner.style.border = "1px solid var(--teal)";
+        alertBanner.innerHTML = "📸 Scanning receipt... please wait.";
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/transactions/scan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ image: base64Image }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        if(alertBanner) {
+            alertBanner.style.background = "rgba(0, 229, 195, 0.15)";
+            alertBanner.innerHTML = "✅ Receipt scanned successfully!";
+        }
+        
+        // Fill the fields
+        document.getElementById("txDesc").value = data.data.description || "";
+        document.getElementById("txAmount").value = data.data.amount || "";
+        
+        // Scroll to the classifier
+        scrollToClassify();
+        
+        // Optionally, auto-trigger the classification
+        setTimeout(() => {
+          classifyExpense();
+        }, 500);
+        
+      } else {
+        if(alertBanner) {
+            alertBanner.style.background = "rgba(255, 92, 92, 0.15)";
+            alertBanner.style.color = "#ff5c5c";
+            alertBanner.innerHTML = "❌ Failed to scan receipt: " + (data.error || "Unknown error");
+        }
+      }
+    } catch (err) {
+      if(alertBanner) {
+          alertBanner.style.background = "rgba(255, 92, 92, 0.15)";
+          alertBanner.style.color = "#ff5c5c";
+          alertBanner.innerHTML = "❌ Connection error while scanning receipt.";
+      }
+      console.error(err);
+    }
+    
+    // Hide alert after 4 seconds
+    setTimeout(() => {
+      if(alertBanner) alertBanner.classList.remove("show");
+    }, 4000);
+  };
+  reader.readAsDataURL(file);
+}
+// ══════════════════════════════════════════════════════════
+//                    VOICE LOGGING
+// ══════════════════════════════════════════════════════════
+
+function startVoiceLog() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert("Sorry, your browser doesn't support speech recognition. Try Chrome!");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  const alertBanner = document.getElementById("alertBanner");
+  if(alertBanner) {
+      alertBanner.className = "alert-banner show";
+      alertBanner.style.background = "var(--teal-dim)";
+      alertBanner.style.color = "var(--teal)";
+      alertBanner.style.border = "1px solid var(--teal)";
+      alertBanner.innerHTML = "🎤 Listening... tell me what you bought.";
+  }
+
+  recognition.start();
+
+  recognition.onresult = async (event) => {
+    const transcript = event.results[0][0].transcript;
+    
+    if(alertBanner) {
+        alertBanner.innerHTML = `⏳ Heard: "${transcript}". Parsing with AI...`;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/transactions/voice`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ text: transcript }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        if(alertBanner) {
+            alertBanner.style.background = "rgba(0, 229, 195, 0.15)";
+            alertBanner.innerHTML = "✅ Voice logged successfully!";
+        }
+        
+        // Fill the fields
+        document.getElementById("txDesc").value = data.data.description || "";
+        document.getElementById("txAmount").value = data.data.amount || "";
+        
+        // Scroll to the classifier
+        scrollToClassify();
+        
+        // Optionally, auto-trigger the classification
+        setTimeout(() => {
+          classifyExpense();
+        }, 500);
+        
+      } else {
+        if(alertBanner) {
+            alertBanner.style.background = "rgba(255, 92, 92, 0.15)";
+            alertBanner.style.color = "#ff5c5c";
+            alertBanner.innerHTML = "❌ Failed to parse voice: " + (data.error || "Unknown error");
+        }
+      }
+    } catch (err) {
+      if(alertBanner) {
+          alertBanner.style.background = "rgba(255, 92, 92, 0.15)";
+          alertBanner.style.color = "#ff5c5c";
+          alertBanner.innerHTML = "❌ Connection error.";
+      }
+      console.error(err);
+    }
+    
+    setTimeout(() => {
+      if(alertBanner) alertBanner.classList.remove("show");
+    }, 4000);
+  };
+
+  recognition.onerror = (event) => {
+    if(alertBanner) {
+        alertBanner.style.background = "rgba(255, 92, 92, 0.15)";
+        alertBanner.style.color = "#ff5c5c";
+        alertBanner.innerHTML = "❌ Microphone error: " + event.error;
+    }
+    setTimeout(() => {
+      if(alertBanner) alertBanner.classList.remove("show");
+    }, 4000);
+  };
+}
+
+// ══════════════════════════════════════════════════════════
+//                    MONTHLY WRAPPED
+// ══════════════════════════════════════════════════════════
+
+async function generateWrapped() {
+  const modal = document.getElementById("wrappedModal");
+  const content = document.getElementById("wrappedContent");
+  
+  if(!modal || !content) return;
+  
+  modal.classList.remove("hidden");
+  content.innerHTML = `
+    <div class="flex flex-col items-center justify-center py-10 gap-4">
+      <div class="text-6xl animate-bounce">🎁</div>
+      <div class="text-xl font-bold text-teal-400">Unwrapping your month...</div>
+      <div class="text-sm text-gray-400">Our AI analysts are crunching the numbers</div>
+    </div>
+  `;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/wrapped`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include"
+    });
+
+    const data = await response.json();
+    
+    if (data.success) {
+      content.innerHTML = data.response;
+    } else {
+      content.innerHTML = `<div class="text-red-400 text-center py-10">Oops! Failed to generate Wrapped: ${data.error}</div>`;
+    }
+  } catch (err) {
+    console.error(err);
+    content.innerHTML = `<div class="text-red-400 text-center py-10">Connection error while fetching Wrapped.</div>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//                    THEME TOGGLE
+// ══════════════════════════════════════════════════════════
+
+function toggleTheme(e) {
+  if (e.checked) {
+    document.documentElement.setAttribute('data-theme', 'light');
+    localStorage.setItem('theme', 'light');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('theme', 'dark');
+  }
+  
+  if (typeof updateChartsTheme === 'function') {
+    updateChartsTheme();
+  } else {
+    if (typeof renderCharts === 'function') renderCharts();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (typeof feather !== 'undefined') {
+    feather.replace();
+  }
+  const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
+  const toggleSwitch = document.getElementById('checkbox');
+
+  if (currentTheme) {
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    if (currentTheme === 'light' && toggleSwitch) {
+      toggleSwitch.checked = true;
+    }
+  }
+});
+
+function updateChartsTheme() {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const textColor = isLight ? '#64748b' : '#94a3b8';
+  const gridColor = isLight ? '#e2e8f0' : 'rgba(255, 255, 255, 0.1)';
+
+  if(typeof Chart !== 'undefined' && Chart.defaults) {
+    Chart.defaults.color = textColor;
+    if(Chart.defaults.scale && Chart.defaults.scale.grid) {
+      Chart.defaults.scale.grid.color = gridColor;
+    }
+  }
+  if (typeof renderCharts === 'function') renderCharts();
 }

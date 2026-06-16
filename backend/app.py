@@ -12,8 +12,23 @@ import os
 from models import db, Transaction, Budget, User
 from sqlalchemy import func, extract
 from sqlalchemy.exc import IntegrityError
-import secrets
 import joblib
+from google import genai
+from google.genai import types
+from dotenv import load_dotenv
+import base64
+import json
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Setup Gemini API key
+gemini_api_key = os.environ.get('GOOGLE_API_KEY')
+gemini_client = None
+if gemini_api_key:
+    gemini_client = genai.Client(api_key=gemini_api_key)
+else:
+    print("[WARNING] GOOGLE_API_KEY not found in environment. Copilot features will be disabled.")
 
 def preprocess(text):
     text = text.lower()
@@ -26,13 +41,20 @@ def preprocess(text):
 app = Flask(__name__)
 CORS(app,
      supports_credentials=True,
-     origins=["https://finwise-expense-tracker-1.onrender.com"],
+     origins=["http://localhost:8000", "https://finwise-expense-tracker-1.onrender.com"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
      allow_headers=["Content-Type"])
 
 @app.after_request
 def handle_options(response):
-    response.headers["Access-Control-Allow-Origin"] = "https://finwise-expense-tracker-1.onrender.com"
+    # Allow both local testing and production origins
+    origin = request.headers.get('Origin')
+    allowed_origins = ["http://localhost:8000", "https://finwise-expense-tracker-1.onrender.com"]
+    if origin in allowed_origins:
+        response.headers["Access-Control-Allow-Origin"] = origin
+    else:
+        response.headers["Access-Control-Allow-Origin"] = "https://finwise-expense-tracker-1.onrender.com"
+        
     response.headers["Access-Control-Allow-Credentials"] = "true"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
@@ -140,8 +162,51 @@ else:
 # ══════════════════════════════════════════════════════════
 
 from functools import wraps
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
+GOOGLE_CLIENT_ID = "363005157333-66c0vgc4886qh9l24idfrd4ts6m3b7ci.apps.googleusercontent.com"
 
+@app.route('/api/auth/google', methods=['POST', 'OPTIONS'])
+def google_auth():
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
+    try:
+        data = request.get_json()
+        token = data.get('credential')
+        if not token:
+            return jsonify({'success': False, 'error': 'Missing Google token'}), 400
+
+        # Verify token
+        idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), GOOGLE_CLIENT_ID)
+        
+        email = idinfo['email']
+        name = idinfo.get('name', email.split('@')[0])
+
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            # Create user with a dummy password to satisfy SQLite NOT NULL constraint
+            import secrets
+            user = User(username=name, email=email)
+            user.set_password(secrets.token_urlsafe(32))
+            db.session.add(user)
+            db.session.commit()
+
+        login_user(user, remember=True)
+        
+        response = jsonify({
+            'success': True,
+            'message': 'Google Login successful',
+            'user': user.to_dict()
+        })
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
+
+    except ValueError:
+        return jsonify({'success': False, 'error': 'Invalid Google token'}), 401
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
@@ -655,6 +720,241 @@ def delete_budget(category):
         return jsonify({"success": True, "message": f"Budget for {category} deleted"})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ══════════════════════════════════════════════════════════
+#               RECEIPT SCANNING ENDPOINT (Protected)
+# ══════════════════════════════════════════════════════════
+@app.route('/api/transactions/scan', methods=['POST', 'OPTIONS'])
+@login_required
+def scan_receipt():
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
+    try:
+        if not gemini_client:
+            return jsonify({'success': False, 'error': 'Gemini API Key is not configured.'}), 503
+
+        data = request.get_json()
+        image_data = data.get('image') # Base64 string from frontend (data:image/jpeg;base64,...)
+
+        if not image_data:
+            return jsonify({'success': False, 'error': 'No image provided.'}), 400
+
+        # Remove the data URL prefix if present
+        if ',' in image_data:
+            mime_type = image_data.split(';')[0].split(':')[1]
+            base64_str = image_data.split(',')[1]
+        else:
+            mime_type = 'image/jpeg'
+            base64_str = image_data
+
+        image_bytes = base64.b64decode(base64_str)
+
+        prompt = """
+        Analyze this receipt and extract the following details. 
+        Return ONLY a valid, raw JSON object with no markdown formatting and no backticks.
+        Ensure keys match exactly:
+        - "amount": total amount as a float (e.g. 45.99)
+        - "description": store name or primary item (e.g. "Starbucks")
+        - "date": date of transaction in YYYY-MM-DD format (e.g. "2023-10-04"). If not found, leave blank.
+        - "category": guess the best category for this store/item. Use one of these if possible: Food, Transport, Shopping, Bills, Entertainment, Health, Travel, Miscellaneous.
+        """
+
+        response = gemini_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=[
+                prompt,
+                types.Part.from_bytes(data=image_bytes, mime_type=mime_type)
+            ]
+        )
+
+        raw_json = response.text.strip()
+        # Clean up in case Gemini returns markdown block
+        if raw_json.startswith('```json'):
+            raw_json = raw_json[7:-3].strip()
+        elif raw_json.startswith('```'):
+            raw_json = raw_json[3:-3].strip()
+
+        parsed_data = json.loads(raw_json)
+
+        return jsonify({
+            'success': True,
+            'data': parsed_data
+        })
+
+    except Exception as e:
+        print("Vision Error:", e)
+        return jsonify({'success': False, 'error': 'Failed to process receipt image.'}), 500
+
+
+# ══════════════════════════════════════════════════════════
+#               VOICE LOGGING ENDPOINT (Protected)
+# ══════════════════════════════════════════════════════════
+@app.route('/api/transactions/voice', methods=['POST', 'OPTIONS'])
+@login_required
+def voice_log():
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
+    try:
+        if not gemini_client:
+            return jsonify({'success': False, 'error': 'Gemini API Key is not configured.'}), 503
+
+        data = request.get_json()
+        text = data.get('text', '')
+
+        if not text:
+            return jsonify({'success': False, 'error': 'No text provided.'}), 400
+
+        prompt = f"""
+        Extract the following financial details from this spoken text: "{text}"
+        Return ONLY a valid, raw JSON object with no markdown formatting and no backticks.
+        Ensure keys match exactly:
+        - "amount": total amount as a float (e.g. 45.99). If no amount is found, return null.
+        - "description": what was bought or the store name.
+        """
+
+        response = gemini_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
+
+        raw_json = response.text.strip()
+        if raw_json.startswith('```json'):
+            raw_json = raw_json[7:-3].strip()
+        elif raw_json.startswith('```'):
+            raw_json = raw_json[3:-3].strip()
+
+        parsed_data = json.loads(raw_json)
+
+        return jsonify({
+            'success': True,
+            'data': parsed_data
+        })
+
+    except Exception as e:
+        print("Voice Parse Error:", e)
+        return jsonify({'success': False, 'error': 'Failed to parse voice input.'}), 500
+
+# ══════════════════════════════════════════════════════════
+#               MONTHLY WRAPPED ENDPOINT (Protected)
+# ══════════════════════════════════════════════════════════
+@app.route('/api/wrapped', methods=['GET', 'OPTIONS'])
+@login_required
+def get_wrapped():
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
+    try:
+        if not gemini_client:
+            return jsonify({'success': False, 'error': 'Gemini API Key is not configured.'}), 503
+
+        # Get current month's transactions
+        now = datetime.now()
+        start_date = now.replace(day=1).strftime('%Y-%m-%d')
+        transactions = Transaction.query.filter(
+            Transaction.user_id == current_user.id,
+            Transaction.date >= start_date
+        ).all()
+
+        if not transactions:
+            return jsonify({'success': True, 'response': '<div style="text-align: center; padding: 2rem;"><h3>Not enough data this month to generate a Wrapped report!</h3><p>Go spend some money (responsibly) and come back later.</p></div>'})
+
+        context_lines = []
+        for t in transactions:
+            context_lines.append(f"- {t.date.strftime('%Y-%m-%d')} | ₹{t.amount} | {t.category} | {t.description}")
+        
+        context_str = "\n".join(context_lines)
+
+        prompt = f"""
+        You are a fun, highly energetic financial analyst creating a "Monthly Wrapped" (like Spotify Wrapped) for the user.
+        Here are their transactions for this month:
+        {context_str}
+
+        Instructions:
+        1. Write an engaging, fun, 3-paragraph summary of their spending.
+        2. Highlight their top spending category and their most expensive single purchase.
+        3. Make a lighthearted joke about one of their spending habits if appropriate.
+        4. Give 1 piece of solid financial advice for next month.
+        5. Format it nicely using HTML (use <b>, <br>, <i>, and <h3> where appropriate) so it looks beautiful on the frontend. Do NOT wrap it in a markdown block. Just return the raw HTML.
+        6. CRITICAL: Do NOT use any emojis in your response. Keep it completely emoji-free to maintain a sleek, premium, professional aesthetic.
+        """
+
+        response = gemini_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
+
+        return jsonify({
+            'success': True,
+            'response': response.text
+        })
+
+    except Exception as e:
+        print("Wrapped Error:", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ══════════════════════════════════════════════════════════
+#               COPILOT CHAT ENDPOINT (Protected)
+# ══════════════════════════════════════════════════════════
+@app.route('/api/copilot/chat', methods=['POST', 'OPTIONS'])
+@login_required
+def copilot_chat():
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
+    try:
+        if not gemini_api_key:
+            return jsonify({'success': False, 'error': 'Gemini API Key is not configured on the server.'}), 503
+
+        data = request.get_json()
+        user_message = data.get('message', '').strip()
+
+        if not user_message:
+            return jsonify({'success': False, 'error': 'Message cannot be empty'}), 400
+
+        # Fetch user's recent transactions for context
+        transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).limit(100).all()
+        
+        # Prepare context
+        context_lines = []
+        for t in transactions:
+            context_lines.append(f"- Date: {t.date.strftime('%Y-%m-%d')}, Amount: ₹{t.amount}, Category: {t.category}, Desc: {t.description}")
+        
+        context_str = "\n".join(context_lines) if context_lines else "No transactions found."
+
+        system_prompt = f"""You are FinWise Copilot, a helpful and friendly AI financial assistant. 
+You are talking to {current_user.username}.
+Here are the user's recent transactions for context (up to 100):
+{context_str}
+
+Instructions:
+1. Answer the user's financial questions based on their transaction history.
+2. Be concise and use formatting like bold text or bullet points.
+3. If they ask a general financial question, answer it.
+4. If they ask about something completely unrelated to finance, politely steer them back.
+5. Do NOT include sensitive personal information beyond what is in the context.
+6. CRITICAL: Do NOT use any emojis in your response. Keep your tone completely professional and emoji-free.
+"""
+
+        if not gemini_client:
+            return jsonify({'success': False, 'error': 'API key not configured.'}), 500
+
+        response = gemini_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=system_prompt + "\n\nUser Question: " + user_message
+        )
+
+        return jsonify({
+            'success': True,
+            'response': response.text,
+            'timestamp': datetime.now().isoformat()
+        })
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 # ══════════════════════════════════════════════════════════

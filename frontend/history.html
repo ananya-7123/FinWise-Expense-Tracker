@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Transaction History — FinWise</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
+    <script src="https://unpkg.com/feather-icons"></script>
     <style>
       /* Additional styles for history page */
       .history-filters {
@@ -25,7 +26,7 @@
         border: 1px solid var(--border);
         border-radius: 10px;
         color: var(--text);
-        font-family: "DM Sans", sans-serif;
+        font-family: "Inter", sans-serif;
         font-size: 13px;
         padding: 10px 14px;
         outline: none;
@@ -42,7 +43,7 @@
         border: 1px solid var(--border);
         border-radius: 10px;
         color: var(--text);
-        font-family: "DM Sans", sans-serif;
+        font-family: "Inter", sans-serif;
         font-size: 13px;
         padding: 10px 14px;
         cursor: pointer;
@@ -106,7 +107,7 @@
       }
 
       .table-amount {
-        font-family: "Syne", sans-serif;
+        font-family: "Manrope", sans-serif;
         font-size: 15px;
         font-weight: 700;
       }
@@ -166,7 +167,7 @@
       }
 
       .stat-box-value {
-        font-family: "Syne", sans-serif;
+        font-family: "Manrope", sans-serif;
         font-size: 24px;
         font-weight: 700;
         color: var(--teal);
@@ -189,44 +190,51 @@
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar">
       <div class="logo">
-        <div class="logo-icon">💹</div>
+        <div class="logo-icon"><i data-feather="trending-up" style="width: 20px; height: 20px;"></i></div>
         <div class="logo-text">Fin<span>Wise</span></div>
       </div>
 
       <div class="nav-section">
         <div class="nav-label">Overview</div>
-        <a class="nav-item" href="index.html">
-          <span class="nav-icon">🏠</span> Dashboard
+        <a class="nav-item" href="index.html" aria-label="Dashboard">
+          <span class="nav-icon"><i data-feather="home" style="width: 18px; height: 18px;"></i></span> Dashboard
         </a>
-        <a class="nav-item" href="index.html#classifySection">
-          <span class="nav-icon">⚡</span> Classifier
-        </a>
-        <a class="nav-item active" href="history.html">
-          <span class="nav-icon">🧾</span> Transactions
+        <a class="nav-item active" href="history.html" aria-label="Transactions">
+          <span class="nav-icon"><i data-feather="list" style="width: 18px; height: 18px;"></i></span> Transactions
         </a>
       </div>
 
       <div class="nav-section">
         <div class="nav-label">Finance</div>
-        <a class="nav-item" href="#">
-          <span class="nav-icon">🎯</span> Budgets
+        <a class="nav-item" href="budgets.html" aria-label="Budgets">
+          <span class="nav-icon"><i data-feather="target" style="width: 18px; height: 18px;"></i></span> Budgets
         </a>
-        <a class="nav-item" href="#">
-          <span class="nav-icon">💰</span> Accounts
-        </a>
-        <a class="nav-item" href="history.html">
-          <span class="nav-icon">📁</span> History
+        <a class="nav-item" href="#" aria-label="Monthly Wrapped" onclick="generateWrapped()">
+          <span class="nav-icon"><i data-feather="award" style="width: 18px; height: 18px;"></i></span> Monthly Wrapped
         </a>
       </div>
 
       <div class="nav-section">
         <div class="nav-label">Settings</div>
-        <a class="nav-item" href="#">
-          <span class="nav-icon">⚙️</span> Preferences
+        <a class="nav-item" href="preferences.html" aria-label="Preferences">
+          <span class="nav-icon"><i data-feather="settings" style="width: 18px; height: 18px;"></i></span> Preferences
+        </a>
+        <a class="nav-item" href="#" aria-label="Logout" onclick="handleLogout()">
+          <span class="nav-icon"><i data-feather="log-out" style="width: 18px; height: 18px;"></i></span> Logout
         </a>
       </div>
 
       <div class="sidebar-footer">
+        <!-- Theme Toggle -->
+        <div class="theme-switch-wrapper" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 4px;">
+          <span style="font-size: 13px; color: var(--text-muted); font-weight: 500;">Dark Mode</span>
+          <label class="theme-switch" for="checkbox" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+            <input type="checkbox" id="checkbox" style="opacity: 0; width: 0; height: 0;" onchange="toggleTheme(this)">
+            <div class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); border: 1px solid var(--border); border-radius: 24px; transition: .4s;">
+              <span class="slider-circle" style="position: absolute; content: ''; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: var(--teal); border-radius: 50%; transition: .4s; box-shadow: 0 0 10px var(--teal-glow);"></span>
+            </div>
+          </label>
+        </div>
         <div class="ai-badge">AI Engine Active</div>
         <div class="ai-text">
           NLP Classifier — Logistic Regression · 93.4% Accuracy
@@ -249,20 +257,6 @@
           >
             + Add Expense
           </button>
-          <div
-            class="avatar"
-            onclick="showLogoutMenu()"
-            style="cursor: pointer"
-            id="userAvatar"
-          >
-            AJ
-          </div>
-          <div class="logout-menu" id="logoutMenu" style="display: none">
-            <div class="logout-user" id="logoutUsername">User</div>
-            <button class="logout-btn" onclick="handleLogout()">
-              🚪 Logout
-            </button>
-          </div>
         </div>
       </div>
 
@@ -322,7 +316,7 @@
       <!-- TRANSACTIONS TABLE -->
       <div class="card">
         <div class="card-header">
-          <div class="card-title">📊 All Transactions</div>
+          <div class="card-title flex items-center gap-2"><i data-feather="list" style="width: 18px; height: 18px;"></i> All Transactions</div>
           <button class="add-btn" onclick="exportToCSV()">📥 Export CSV</button>
         </div>
 

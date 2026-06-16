@@ -1,21 +1,24 @@
 # 💹 FinWise - AI-Powered Expense Tracker
 
+live link : https://finwise-expense-tracker-1.onrender.com
+
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-3.0.0-green.svg)](https://flask.palletsprojects.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**FinWise** is an intelligent expense tracking web application that leverages Machine Learning and Natural Language Processing to automatically classify your transactions into categories. Built with Flask and powered by a custom-trained ML model achieving over 93% accuracy on the test dataset.
+**FinWise** is an intelligent expense tracking web application that leverages Google's **Gemini AI** to automatically classify your transactions, parse voice logs, and extract data from receipts. Built with Flask and powered by state-of-the-art Generative AI, FinWise acts as your personal financial copilot to help you track expenses, set budgets, and gain actionable insights.
 
 ---
 
 ## 🌟 Features
 
-### 🤖 AI-Powered Classification
+### 🤖 Advanced AI Features (Powered by Gemini)
 
-- **Smart NLP Engine** - Automatically categorizes expenses using dual TF-IDF vectorization and Logistic Regression
-- **93%+ Accuracy** - Trained on diverse transaction patterns
-- **Real-time Predictions** - Instant classification with confidence scores
-- **8 Categories** - Food, Transport, Healthcare, Bills, Shopping, Entertainment, Income, Others
+- **AI Financial Copilot** - An interactive chatbot that contextually answers questions based on your transaction history.
+- **Instant AI Receipt Scanning** - Upload images or PDFs of receipts and let AI extract the amount, description, and date automatically.
+- **Voice Expense Logging** - Speak your expenses naturally (e.g., "I spent 500 on dinner") and AI parses it perfectly.
+- **Monthly Wrapped** - Enjoy a fun, personalized end-of-month summary of your spending habits, complete with AI-generated insights.
+- **Smart NLP Classification** - Instantly categorizes expenses into 8 categories (Food, Transport, Healthcare, Bills, Shopping, Entertainment, Income, Others).
 
 ### 📊 Financial Analytics
 
@@ -56,13 +59,11 @@
 - **SQLAlchemy** - ORM for database operations
 - **SQLite** - Lightweight database
 
-### Machine Learning
+### Generative AI Integration
 
-- **Scikit-learn** - ML framework
-- **TF-IDF Vectorization** - Dual word + character level feature extraction
-- **Logistic Regression** - Classification algorithm
-- **Pandas & NumPy** - Data processing
-- **5-Fold Cross-Validation** - Model evaluation
+- **Google Gemini API** - Powers classification, receipt scanning, and the copilot.
+- **google-generativeai** - Python SDK for seamless integration.
+- **Pillow / pdf2image** - For processing receipt uploads (images and PDFs).
 
 ---
 
@@ -195,8 +196,7 @@ http://localhost:8000/login.html
 
 - Navigate to `http://localhost:8000/signup.html`
 - Fill in username, email, and password
-- Click "Create Account" DEMO : email id : ananya@kiit.ac.in  || pw: anaXYZ@_07
-
+- Click "Create Account" DEMO : email id : ananya@kiit.ac.in || pw: anaXYZ@\_07
 
 ### 2. Login
 
@@ -262,40 +262,33 @@ Frontend (HTML, CSS, JavaScript)
 ▼
 Flask Backend API
 │
-├── ML Model (TF-IDF + Logistic Regression)
+├── Google Gemini API (Classification, Copilot, OCR, Wrapped)
 │
 ▼
 SQLite Database
 
 ---
 
-## 🧠 ML Model Details
+## 🧠 Generative AI Integration Details
 
-### Training Dataset
+### Gemini Flash Models
 
-- **2,528 transactions** across 8 categories
-- Balanced distribution with stratified sampling
-- Real-world transaction patterns
+FinWise has transitioned from a traditional machine learning pipeline (TF-IDF + Logistic Regression) to utilizing Google's cutting-edge **Gemini 1.5 Flash** and **Gemini 2.5 Flash** models. This allows for significantly more complex interactions and vastly improved accuracy.
 
-### Feature Extraction
+### Advanced Capabilities
 
-**Dual TF-IDF Approach:**
+1. **Multimodal Receipt Parsing:** 
+   - Utilizes `gemini-2.5-flash` to process both images (`.jpg`, `.png`) and documents (`.pdf`).
+   - Automatically extracts relevant fields like Date, Amount, Description, and Category through structured JSON output generation.
 
-1. **Word-level TF-IDF** (1-2 gram)
-   - Captures full words and phrases
-   - Examples: "doctor visit", "petrol refill", "salary credited"
+2. **Natural Language Voice Processing:**
+   - Interprets messy, unstructured voice transcripts and reliably maps them into standardized transaction objects.
 
-2. **Character-level TF-IDF** (2-4 gram)
-   - Captures brand names and partial words
-   - Examples: "zomato", "swiggy", "flipkart"
-   - Handles unseen brand names
+3. **Contextual Copilot:**
+   - The Copilot is injected with a context window of the user's last 100 transactions, enabling it to answer highly specific questions like "How much did I spend on food this month?" or "What was my largest expense?"
 
-### Model Performance
-
-- **Algorithm:** Logistic Regression (C=10, max_iter=1000)
-- **Cross-Validation:** 5-Fold Stratified
-- **Test Accuracy:** 93%+
-- **Training Features:** 16,000 combined features
+4. **Monthly Wrapped Generation:**
+   - Synthesizes an entire month's worth of transactions into a fun, engaging, and personalized financial summary.
 
 ### Categories Supported
 
@@ -417,7 +410,6 @@ For questions or feedback, please reach out:
 - [ ] Multiple currency support
 - [ ] Recurring transactions
 - [ ] Bank account integration
-- [ ] Receipt scanning with OCR
 - [ ] Multi-language support
 - [ ] Dark/Light theme toggle
 - [ ] Email notifications

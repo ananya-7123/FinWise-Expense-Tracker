@@ -68,12 +68,12 @@ checkAuth();
 // ══════════════════════════════════════════════════════════
 
 const categoryInfo = {
-  Food: { icon: "🍔", class: "food", color: "#00e5c3" },
-  Transport: { icon: "🚗", class: "transport", color: "#4f8ef7" },
-  Healthcare: { icon: "💊", class: "healthcare", color: "#a855f7" },
-  Bills: { icon: "⚡", class: "bills", color: "#f5a623" },
-  Shopping: { icon: "🛍️", class: "shopping", color: "#ff9f45" },
-  Entertainment: { icon: "🎬", class: "entertainment", color: "#f97316" },
+  Food: { icon: "<i data-feather='coffee'></i>", class: "food", color: "#00e5c3" },
+  Transport: { icon: "<i data-feather='navigation'></i>", class: "transport", color: "#4f8ef7" },
+  Healthcare: { icon: "<i data-feather='heart'></i>", class: "healthcare", color: "#a855f7" },
+  Bills: { icon: "<i data-feather='zap'></i>", class: "bills", color: "#f5a623" },
+  Shopping: { icon: "<i data-feather='shopping-bag'></i>", class: "shopping", color: "#ff9f45" },
+  Entertainment: { icon: "<i data-feather='film'></i>", class: "entertainment", color: "#f97316" },
 };
 
 function init() {
@@ -150,7 +150,7 @@ function renderBudgets() {
   Object.keys(budgets).forEach((category) => {
     const budget = budgets[category];
     const info = categoryInfo[category] || {
-      icon: "📝",
+      icon: "<i data-feather='box'></i>",
       class: "others",
       color: "#94a3b8",
     };
@@ -207,6 +207,7 @@ function renderBudgets() {
     <div style="font-size: 14px; font-weight: 600; color: var(--text-dim);">Add New Budget</div>
   `;
   grid.appendChild(addCard);
+  if (window.feather) feather.replace();
 }
 
 function getSpentForCategory(category) {

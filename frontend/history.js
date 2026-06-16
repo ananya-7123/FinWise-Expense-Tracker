@@ -75,14 +75,14 @@ checkAuth();
 // ══════════════════════════════════════════════════════════
 
 const categoryStyles = {
-  Food: { bg: "rgba(0,229,195,0.12)", color: "#00e5c3", icon: "🍔" },
-  Transport: { bg: "rgba(79,142,247,0.12)", color: "#4f8ef7", icon: "🚗" },
-  Healthcare: { bg: "rgba(168,85,247,0.12)", color: "#a855f7", icon: "💊" },
-  Bills: { bg: "rgba(245,166,35,0.12)", color: "#f5a623", icon: "⚡" },
-  Shopping: { bg: "rgba(255,159,69,0.12)", color: "#ff9f45", icon: "🛍️" },
-  Entertainment: { bg: "rgba(249,115,22,0.12)", color: "#f97316", icon: "🎬" },
-  Income: { bg: "rgba(34,197,94,0.12)", color: "#22c55e", icon: "💰" },
-  Others: { bg: "rgba(148,163,184,0.12)", color: "#94a3b8", icon: "📝" },
+  Food: { bg: "rgba(0,229,195,0.12)", color: "#00e5c3", icon: "<i data-feather='coffee'></i>" },
+  Transport: { bg: "rgba(79,142,247,0.12)", color: "#4f8ef7", icon: "<i data-feather='navigation'></i>" },
+  Healthcare: { bg: "rgba(168,85,247,0.12)", color: "#a855f7", icon: "<i data-feather='heart'></i>" },
+  Bills: { bg: "rgba(245,166,35,0.12)", color: "#f5a623", icon: "<i data-feather='zap'></i>" },
+  Shopping: { bg: "rgba(255,159,69,0.12)", color: "#ff9f45", icon: "<i data-feather='shopping-bag'></i>" },
+  Entertainment: { bg: "rgba(249,115,22,0.12)", color: "#f97316", icon: "<i data-feather='film'></i>" },
+  Income: { bg: "rgba(34,197,94,0.12)", color: "#22c55e", icon: "<i data-feather='dollar-sign'></i>" },
+  Others: { bg: "rgba(148,163,184,0.12)", color: "#94a3b8", icon: "<i data-feather='box'></i>" },
 };
 
 async function loadAllTransactions() {
@@ -165,6 +165,7 @@ function renderTransactions() {
     `;
     })
     .join("");
+  if (window.feather) feather.replace();
 }
 
 function updateStats() {
@@ -247,7 +248,7 @@ async function deleteTransaction(id) {
       renderTransactions();
       updateStats();
 
-      alert("✅ Transaction deleted successfully!");
+      alert("V Transaction deleted successfully!");
     } else {
       alert("❌ Failed to delete transaction");
     }
@@ -283,7 +284,7 @@ function exportToCSV() {
   document.body.removeChild(a);
   window.URL.revokeObjectURL(url);
 
-  alert("✅ Transactions exported successfully!");
+  alert("V Transactions exported successfully!");
 }
 
 function showEmptyState() {

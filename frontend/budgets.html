@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Budget Management — FinWise</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
+    <script src="https://unpkg.com/feather-icons"></script>
     <style>
       .budget-grid {
         display: grid;
@@ -66,7 +67,7 @@
       }
 
       .budget-category {
-        font-family: "Syne", sans-serif;
+        font-family: "Manrope", sans-serif;
         font-size: 16px;
         font-weight: 700;
         margin-bottom: 4px;
@@ -86,7 +87,7 @@
       }
 
       .budget-spent {
-        font-family: "Syne", sans-serif;
+        font-family: "Manrope", sans-serif;
         font-size: 20px;
         font-weight: 700;
       }
@@ -194,7 +195,7 @@
       }
 
       .modal-title {
-        font-family: "Syne", sans-serif;
+        font-family: "Manrope", sans-serif;
         font-size: 20px;
         font-weight: 700;
         margin-bottom: 24px;
@@ -221,7 +222,7 @@
         border: 1px solid var(--border);
         border-radius: 10px;
         color: var(--text);
-        font-family: "DM Sans", sans-serif;
+        font-family: "Inter", sans-serif;
         font-size: 14px;
         padding: 12px 14px;
         outline: none;
@@ -271,44 +272,51 @@
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar">
       <div class="logo">
-        <div class="logo-icon">💹</div>
+        <div class="logo-icon"><i data-feather="trending-up" style="width: 20px; height: 20px;"></i></div>
         <div class="logo-text">Fin<span>Wise</span></div>
       </div>
 
       <div class="nav-section">
         <div class="nav-label">Overview</div>
-        <a class="nav-item" href="index.html">
-          <span class="nav-icon">🏠</span> Dashboard
+        <a class="nav-item" href="index.html" aria-label="Dashboard">
+          <span class="nav-icon"><i data-feather="home" style="width: 18px; height: 18px;"></i></span> Dashboard
         </a>
-        <a class="nav-item" href="index.html#classifySection">
-          <span class="nav-icon">⚡</span> Classifier
-        </a>
-        <a class="nav-item" href="history.html">
-          <span class="nav-icon">🧾</span> Transactions
+        <a class="nav-item" href="history.html" aria-label="Transactions">
+          <span class="nav-icon"><i data-feather="list" style="width: 18px; height: 18px;"></i></span> Transactions
         </a>
       </div>
 
       <div class="nav-section">
         <div class="nav-label">Finance</div>
-        <a class="nav-item active" href="budgets.html">
-          <span class="nav-icon">🎯</span> Budgets
+        <a class="nav-item active" href="budgets.html" aria-label="Budgets">
+          <span class="nav-icon"><i data-feather="target" style="width: 18px; height: 18px;"></i></span> Budgets
         </a>
-        <a class="nav-item" href="#">
-          <span class="nav-icon">💰</span> Accounts
-        </a>
-        <a class="nav-item" href="history.html">
-          <span class="nav-icon">📁</span> History
+        <a class="nav-item" href="#" aria-label="Monthly Wrapped" onclick="generateWrapped()">
+          <span class="nav-icon"><i data-feather="award" style="width: 18px; height: 18px;"></i></span> Monthly Wrapped
         </a>
       </div>
 
       <div class="nav-section">
         <div class="nav-label">Settings</div>
-        <a class="nav-item" href="#">
-          <span class="nav-icon">⚙️</span> Preferences
+        <a class="nav-item" href="preferences.html" aria-label="Preferences">
+          <span class="nav-icon"><i data-feather="settings" style="width: 18px; height: 18px;"></i></span> Preferences
+        </a>
+        <a class="nav-item" href="#" aria-label="Logout" onclick="handleLogout()">
+          <span class="nav-icon"><i data-feather="log-out" style="width: 18px; height: 18px;"></i></span> Logout
         </a>
       </div>
 
       <div class="sidebar-footer">
+        <!-- Theme Toggle -->
+        <div class="theme-switch-wrapper" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 4px;">
+          <span style="font-size: 13px; color: var(--text-muted); font-weight: 500;">Dark Mode</span>
+          <label class="theme-switch" for="checkbox" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+            <input type="checkbox" id="checkbox" style="opacity: 0; width: 0; height: 0;" onchange="toggleTheme(this)">
+            <div class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); border: 1px solid var(--border); border-radius: 24px; transition: .4s;">
+              <span class="slider-circle" style="position: absolute; content: ''; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: var(--teal); border-radius: 50%; transition: .4s; box-shadow: 0 0 10px var(--teal-glow);"></span>
+            </div>
+          </label>
+        </div>
         <div class="ai-badge">AI Engine Active</div>
         <div class="ai-text">
           NLP Classifier — Logistic Regression · 93.4% Accuracy
@@ -331,20 +339,6 @@
           <button class="add-btn" onclick="openAddBudgetModal()">
             + Set Budget
           </button>
-          <div
-            class="avatar"
-            onclick="showLogoutMenu()"
-            style="cursor: pointer"
-            id="userAvatar"
-          >
-            AJ
-          </div>
-          <div class="logout-menu" id="logoutMenu" style="display: none">
-            <div class="logout-user" id="logoutUsername">User</div>
-            <button class="logout-btn" onclick="handleLogout()">
-              🚪 Logout
-            </button>
-          </div>
         </div>
       </div>
 
@@ -358,7 +352,7 @@
           border-color: rgba(255, 92, 92, 0.25);
         "
       >
-        <span class="alert-icon">⚠️</span>
+        <span class="alert-icon">!</span>
         <div class="alert-text" id="budgetAlertText">
           <!-- Populated by JavaScript -->
         </div>
@@ -368,22 +362,22 @@
       <!-- BUDGET OVERVIEW -->
       <div class="stat-grid">
         <div class="stat-card teal">
-          <div class="stat-label">🎯 Total Budget</div>
+          <div class="stat-label flex items-center gap-1"><i data-feather="target" style="width: 14px; height: 14px;"></i> Total Budget</div>
           <div class="stat-value" id="totalBudget">₹0</div>
           <div class="stat-change" id="totalBudgetStatus">Set your budgets</div>
         </div>
         <div class="stat-card amber">
-          <div class="stat-label">💸 Total Spent</div>
+          <div class="stat-label flex items-center gap-1"><i data-feather="trending-up" style="width: 14px; height: 14px;"></i> Total Spent</div>
           <div class="stat-value" id="totalSpent">₹0</div>
           <div class="stat-change" id="totalSpentPercent">0% of budget</div>
         </div>
         <div class="stat-card blue">
-          <div class="stat-label">💰 Remaining</div>
+          <div class="stat-label flex items-center gap-1"><i data-feather="dollar-sign" style="width: 14px; height: 14px;"></i> Remaining</div>
           <div class="stat-value" id="totalRemaining">₹0</div>
           <div class="stat-change" id="daysRemaining">-- days left</div>
         </div>
         <div class="stat-card red">
-          <div class="stat-label">⚠️ Alerts</div>
+          <div class="stat-label flex items-center gap-1"><i data-feather="alert-triangle" style="width: 14px; height: 14px;"></i> Alerts</div>
           <div class="stat-value" id="alertCount">0</div>
           <div class="stat-change">Categories over budget</div>
         </div>
@@ -392,7 +386,7 @@
       <!-- BUDGETS GRID -->
       <div class="card">
         <div class="card-header">
-          <div class="card-title">📊 Category Budgets</div>
+          <div class="card-title flex items-center gap-2"><i data-feather="pie-chart" style="width: 18px; height: 18px;"></i> Category Budgets</div>
           <div class="card-sub">Click on a category to edit or delete</div>
         </div>
 
@@ -403,7 +397,7 @@
             class="budget-card add-budget-card"
             onclick="openAddBudgetModal()"
           >
-            <div class="add-budget-icon">➕</div>
+            <div class="add-budget-icon">+</div>
             <div
               style="font-size: 14px; font-weight: 600; color: var(--text-dim)"
             >
@@ -424,12 +418,12 @@
             <label class="form-label">Category</label>
             <select class="form-select" id="budgetCategory" required>
               <option value="">Select Category</option>
-              <option value="Food">🍔 Food</option>
-              <option value="Transport">🚗 Transport</option>
-              <option value="Healthcare">💊 Healthcare</option>
-              <option value="Bills">⚡ Bills</option>
-              <option value="Shopping">🛍️ Shopping</option>
-              <option value="Entertainment">🎬 Entertainment</option>
+              <option value="Food">F Food</option>
+              <option value="Transport">T Transport</option>
+              <option value="Healthcare">H Healthcare</option>
+              <option value="Bills">B Bills</option>
+              <option value="Shopping">S Shopping</option>
+              <option value="Entertainment">E Entertainment</option>
             </select>
           </div>
 
