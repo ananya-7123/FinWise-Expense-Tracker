@@ -232,26 +232,6 @@ http://localhost:8000/login.html
 
 ---
 
-## 📊 Application Screenshots
-
-### Dashboard
-
-![Dashboard](docs/screenshots/dashboard.png)
-
-### AI Expense Classifier
-
-![Classifier](docs/screenshots/classifier.png)
-
-### Budget Management
-
-![Budgets](docs/screenshots/budgets.png)
-
-### Spending Analytics
-
-![Analytics](docs/screenshots/analytics.png)
-
----
-
 ## 🏗 Architecture
 
 User Browser
@@ -399,8 +379,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 For questions or feedback, please reach out:
 
 - **Email:** ananybhui723@gmail.com
-- **GitHub:** [@ananya-7i23](https://github.com/ananya-7i23)
-- **LinkedIn:** [Ananya Bhui](https://www.linkedin.com/in/)
+- **GitHub:** [ananya-7123](https://github.com/ananya-7123)
+- **LinkedIn:** [ananya-bhui](https://www.linkedin.com/in/ananya-bhui/)
 
 ---
 
@@ -408,12 +388,9 @@ For questions or feedback, please reach out:
 
 - [ ] Mobile app (React Native)
 - [ ] Multiple currency support
-- [ ] Recurring transactions
 - [ ] Bank account integration
 - [ ] Multi-language support
-- [ ] Dark/Light theme toggle
 - [ ] Email notifications
-- [ ] Advanced analytics dashboard
 - [ ] Export to multiple formats (Excel, JSON)
 
 ---
