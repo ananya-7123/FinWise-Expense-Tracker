@@ -440,46 +440,55 @@ def classify_transaction():
         if not description:
             return jsonify({'error': 'Description cannot be empty'}), 400
 
-        cleaned = preprocess_fn(description)
-        model_ready = all([word_tfidf, char_tfidf, classifier])
-        features = None
-        if model_ready:
-            features = hstack([
-                word_tfidf.transform([cleaned]),
-                char_tfidf.transform([cleaned])
-            ])
+        if not gemini_client:
+            return jsonify({'error': 'Gemini API not configured. Please check your .env file.'}), 503
 
-        # Keyword override first, ML model as fallback
-        override = keyword_override(description)
-        if override:
-            category = override
-            confidence = 95.0
-            if model_ready:
-                probabilities = classifier.predict_proba(features)[0]
-            else:
-                probabilities = [1.0]
-        else:
-            if not model_ready:
-                return jsonify({
-                    'success': False,
-                    'error': 'Classification model unavailable. Please try again later.',
-                    'details': model_load_error
-                }), 503
-            category = classifier.predict(features)[0]
-            probabilities = classifier.predict_proba(features)[0]
-            confidence = round(max(probabilities) * 100, 1)
-
-        if model_ready:
-            all_probs = {
-                cat: round(prob * 100, 2)
-                for cat, prob in zip(classifier.classes_, probabilities)
-            }
-        else:
-            all_probs = {category: 100.0}
+        # Use Gemini to classify
+        prompt = f"""
+        You are a highly accurate financial classification AI.
+        Analyze this transaction description: "{description}"
+        
+        Categorize it into EXACTLY ONE of these 8 categories:
+        Food, Transport, Healthcare, Bills, Shopping, Entertainment, Income, Others.
+        
+        Respond with ONLY a JSON object in this exact format, nothing else:
+        {{"category": "CategoryName", "confidence": 99.5}}
+        """
+        
+        response = gemini_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        
+        # Parse JSON
+        import json
+        
+        resp_text = response.text.strip()
+        if resp_text.startswith('```json'):
+            resp_text = resp_text[7:]
+        if resp_text.endswith('```'):
+            resp_text = resp_text[:-3]
+            
+        try:
+            ai_data = json.loads(resp_text)
+            category = ai_data.get('category', 'Others')
+            confidence = ai_data.get('confidence', 95.0)
+        except json.JSONDecodeError:
+            category = "Others"
+            confidence = 80.0
+            
+        valid_categories = ['Food', 'Transport', 'Healthcare', 'Bills', 'Shopping', 'Entertainment', 'Income', 'Others']
+        if category not in valid_categories:
+            category = "Others"
 
         category_data = get_category_metadata(category)
+        
+        all_probs = {category: confidence}
+        for c in valid_categories:
+            if c != category:
+                all_probs[c] = round((100 - confidence) / 7, 2)
 
-        response = {
+        resp_dict = {
             'success': True,
             'category': category,
             'confidence': confidence,
@@ -487,12 +496,12 @@ def classify_transaction():
             'tip': category_data['tip'],
             'all_probabilities': all_probs,
             'original_description': description,
-            'cleaned_description': cleaned,
+            'cleaned_description': description,
             'timestamp': datetime.now().isoformat()
         }
 
         if amount:
-            response['amount'] = amount
+            resp_dict['amount'] = amount
 
         if should_save and amount:
             new_transaction = Transaction(
@@ -505,12 +514,13 @@ def classify_transaction():
             )
             db.session.add(new_transaction)
             db.session.commit()
-            response['saved'] = True
-            response['transaction_id'] = new_transaction.id
+            resp_dict['saved'] = True
+            resp_dict['transaction_id'] = new_transaction.id
 
-        return jsonify(response)
+        return jsonify(resp_dict)
 
     except Exception as e:
+        print("Classification Error:", e)
         return jsonify({'success': False, 'error': str(e)}), 500
 
 

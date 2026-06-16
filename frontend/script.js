@@ -411,7 +411,7 @@ async function classifyExpense() {
     );
   } finally {
     classifyBtn.disabled = false;
-    classifyBtn.innerHTML = "B Classify";
+    classifyBtn.innerHTML = "Classify";
   }
 }
 
